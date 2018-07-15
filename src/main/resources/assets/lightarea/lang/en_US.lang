@@ -1,0 +1,13 @@
+set.pos1=Selected pos1 : %s
+set.pos2=Selected pos2 : %s
+create.area=Area is created
+
+info.pos1=Current area's start coordinate is : %s
+info.pos2=Current area's end coordinate is : %s
+info.light=Current area's light level is : %f
+info.notInArea=You are not in any area
+
+tool.set=Set select tool to : %s
+tool.get=Current select tool is : %s
+
+invalid.float=Invalid float arg

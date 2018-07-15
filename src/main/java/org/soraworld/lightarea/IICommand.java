@@ -2,7 +2,7 @@ package org.soraworld.lightarea;
 
 
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.*;
 
@@ -23,14 +23,14 @@ public abstract class IICommand {
         IICommand sub = subs.get(args.first());
         if (sub == null) return;
         args.next();
-        if (sender instanceof EntityPlayer) {
-            sub.execute((EntityPlayer) sender, args);
+        if (sender instanceof EntityPlayerMP) {
+            sub.execute((EntityPlayerMP) sender, args);
             return;
         }
         if (!onlyPlayer) sub.execute(sender, args);
     }
 
-    public void execute(EntityPlayer player, CommandArgs args) {
+    public void execute(EntityPlayerMP player, CommandArgs args) {
         execute((ICommandSender) player, args);
     }
 

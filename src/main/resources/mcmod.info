@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "lightarea",
+    "name": "LightArea",
+    "description": "Light Area Mod , Copyright (c) 2018 Himmelt.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/Himmelt/LightArea",
+    "updateUrl": "https://github.com/Himmelt/LightArea/releases",
+    "authorList": [
+      "Himmelt"
+    ],
+    "credits": "Himmelt, making this mod.",
+    "logoFile": "assets/lightarea/logo.png",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

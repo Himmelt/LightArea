@@ -1,0 +1,13 @@
+set.pos1=已选择位置1 : %s
+set.pos2=已选择位置2 : %s
+create.area=已创建新的区域
+
+info.pos1=当前区域起点 : %s
+info.pos2=当前区域终点 : %s
+info.light=当前区域亮度 : %f
+info.notInArea=当前位置不在任何区域中
+
+tool.set=选择工具设置为 : %s
+tool.get=当前选择工具为 : %s
+
+invalid.float=参数不是有效的小数

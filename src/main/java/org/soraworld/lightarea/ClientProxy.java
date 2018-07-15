@@ -4,6 +4,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.HashSet;
 
@@ -23,11 +24,11 @@ public class ClientProxy extends CommonProxy {
         super.onInit(event);
     }
 
-    public void setLightLevel(int dim, double x, double y, double z) {
-        HashSet<Area> set = areas.get(dim);
+    public void setLightLevel(EntityPlayer sp) {
+        HashSet<Area> set = areas.get(sp.dimension);
         if (set != null) {
             for (Area area : set) {
-                if (area.contains(x, y, z)) {
+                if (area.contains(new Vec3d(sp))) {
                     mc.gameSettings.gammaSetting = area.light;
                     return;
                 }

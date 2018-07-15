@@ -2,10 +2,10 @@ package org.soraworld.lightarea;
 
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,41 +17,78 @@ public class LightCommand extends IICommand implements ICommand {
         super(onlyPlayer, aliases);
         addSub(new IICommand(true, "pos1") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
-                proxy.setPos1(player, new Vec3i(player));
-                player.addChatMessage(new ChatComponentText("set Pos1:" + proxy.getPos1(player)));
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                proxy.setPos1(player, new Vec3i(player), true);
             }
         });
         addSub(new IICommand(true, "pos2") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
-                proxy.setPos2(player, new Vec3i(player));
-                player.addChatMessage(new ChatComponentText("set Pos2:" + proxy.getPos2(player)));
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                proxy.setPos2(player, new Vec3i(player), true);
             }
         });
         addSub(new IICommand(true, "create") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
+            public void execute(EntityPlayerMP player, CommandArgs args) {
                 if (args.empty()) proxy.createArea(player, 0);
                 else proxy.createArea(player, Float.valueOf(args.first()));
             }
         });
         addSub(new IICommand(true, "delete") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
-                if (player instanceof EntityPlayerMP) proxy.deleteArea((EntityPlayerMP) player);
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                proxy.deleteArea(player);
             }
         });
         addSub(new IICommand(true, "info") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
-
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                Area area = proxy.findAreaAt(player);
+                if (area != null) {
+                    player.addChatMessage(new ChatComponentTranslation("info.pos1", area.pos1()));
+                    player.addChatMessage(new ChatComponentTranslation("info.pos2", area.pos2()));
+                    player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
+                    proxy.setPos1(player, area.vec1(), false);
+                    proxy.setPos2(player, area.vec2(), false);
+                } else {
+                    player.addChatMessage(new ChatComponentTranslation("info.notInArea"));
+                }
             }
         });
         addSub(new IICommand(true, "level") {
             @Override
-            public void execute(EntityPlayer player, CommandArgs args) {
-
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                Area area = proxy.findAreaAt(player);
+                if (area != null) {
+                    if (args.notEmpty()) {
+                        try {
+                            float old = area.light;
+                            area.light = Float.valueOf(args.first());
+                            if (area.light < 0) area.light = 0.0F;
+                            if (area.light > 15) area.light = 15.0F;
+                            if (old != area.light) {
+                                proxy.sendUpdateToAll(player.dimension, area);
+                                proxy.save();
+                            }
+                            player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
+                        } catch (Throwable e) {
+                            player.addChatMessage(new ChatComponentTranslation("invalid.float"));
+                        }
+                    } else player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
+                } else player.addChatMessage(new ChatComponentTranslation("info.notInArea"));
+            }
+        });
+        addSub(new IICommand(true, "tool") {
+            @Override
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                ItemStack stack = player.getHeldItem();
+                if (stack != null) {
+                    proxy.tool = stack.getItem();
+                    proxy.save();
+                    player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName())));
+                } else {
+                    player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName())));
+                }
             }
         });
     }
@@ -63,7 +100,7 @@ public class LightCommand extends IICommand implements ICommand {
 
     @Nonnull
     public String getUsage(@Nonnull ICommandSender sender) {
-        return "/light pos1/pos2/create/level/info/delete";
+        return "/light pos1/pos2/create/level/info/delete/tool";
     }
 
     @Nonnull
@@ -89,7 +126,7 @@ public class LightCommand extends IICommand implements ICommand {
     }
 
     public String getCommandUsage(ICommandSender sender) {
-        return "";
+        return getUsage(sender);
     }
 
     public List getCommandAliases() {

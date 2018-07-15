@@ -9,7 +9,7 @@ public class Area {
     public final int x2;
     public final int y2;
     public final int z2;
-    public final float light;
+    public float light;
 
     public Area(int id, int x1, int y1, int z1, int x2, int y2, int z2, float light) {
         this.id = id;
@@ -22,8 +22,12 @@ public class Area {
         this.light = light;
     }
 
-    boolean contains(double x, double y, double z) {
-        return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
+    private boolean contains(double x, double y, double z) {
+        return x >= x1 && x <= x2 + 1 && y >= y1 && y < y2 + 1 && z >= z1 && z <= z2 + 1;
+    }
+
+    boolean contains(Vec3d pos) {
+        return contains(pos.x, pos.y, pos.z);
     }
 
     @Override
@@ -46,4 +50,21 @@ public class Area {
         return "" + x1 + ',' + y1 + ',' + z1 + ','
                 + x2 + ',' + y2 + ',' + z2 + ',' + light;
     }
+
+    public String pos1() {
+        return "(" + x1 + " , " + y1 + " , " + z1 + ')';
+    }
+
+    public String pos2() {
+        return "(" + x2 + " , " + y2 + " , " + z2 + ')';
+    }
+
+    public Vec3i vec1() {
+        return new Vec3i(x1, y1, z1);
+    }
+
+    public Vec3i vec2() {
+        return new Vec3i(x2, y2, z2);
+    }
+
 }
