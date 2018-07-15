@@ -1,23 +1,16 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+        maven { url = "http://files.minecraftforge.net/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
 
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.0.1"
+version = "1.0.2"
 group = "org.soraworld.lightarea"
 archivesBaseName = "LightArea"
 
@@ -27,11 +20,14 @@ compileJava {
 }
 
 minecraft {
-    version = "1.7.10-10.13.4.1614-1.7.10"
+    version = "1.12.2-14.23.4.2736"
     runDir = "build/run"
+    mappings = "snapshot_20171003"
 }
 
-dependencies {}
+dependencies {
+    compile files('lib/cpw-1.7.10-10.13.4.1614-1.7.10.jar')
+}
 
 processResources {
     inputs.property "version", project.version

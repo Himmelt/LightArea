@@ -1,8 +1,8 @@
 package org.soraworld.lightarea;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EventBusClientHandler {
 
@@ -13,10 +13,16 @@ public class EventBusClientHandler {
     }
 
     @SubscribeEvent
-    public void onVideoSetting(GuiScreenEvent.DrawScreenEvent.Post event) {
+    public void onVideoSetting_new(GuiScreenEvent.DrawScreenEvent.Post event) {
         if (event.gui instanceof GuiVideoSettings) {
             proxy.resetLight(true);
         }
     }
 
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onVideoSetting_old(GuiScreenEvent.DrawScreenEvent.Post event) {
+        if (event.gui instanceof GuiVideoSettings) {
+            proxy.resetLight(true);
+        }
+    }
 }

@@ -1,7 +1,5 @@
 package org.soraworld.lightarea;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 public class FMLHandler {
@@ -12,18 +10,18 @@ public class FMLHandler {
         this.proxy = proxy;
     }
 
-    @SubscribeEvent
-    public void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onLogin(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP) proxy.loginSend((EntityPlayerMP) event.player);
     }
 
-    @SubscribeEvent
-    public void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onLogout(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
         proxy.clearSelect(event.player);
     }
 
-    @SubscribeEvent
-    public void onChangeDim(PlayerEvent.PlayerChangedDimensionEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onChangeDim(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent event) {
         proxy.clearSelect(event.player);
     }
 

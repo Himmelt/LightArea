@@ -1,17 +1,31 @@
 package org.soraworld.lightarea;
 
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
+@cpw.mods.fml.common.Mod(
+        modid = LightArea.MOD_ID,
+        name = LightArea.MOD_NAME,
+        version = LightArea.MOD_VERSION
+)
 @Mod(
-        modid = "lightarea",
-        name = "LightArea"
+        modid = LightArea.MOD_ID,
+        name = LightArea.MOD_NAME,
+        version = LightArea.MOD_VERSION
 )
 public class LightArea {
 
+    public static final String MOD_ID = "lightarea";
+    public static final String MOD_NAME = "LightArea";
+    public static final String MOD_VERSION = "1.0.2";
+
+    @cpw.mods.fml.common.SidedProxy(
+            clientSide = "org.soraworld.lightarea.ClientProxy",
+            serverSide = "org.soraworld.lightarea.CommonProxy"
+    )
     @SidedProxy(
             clientSide = "org.soraworld.lightarea.ClientProxy",
             serverSide = "org.soraworld.lightarea.CommonProxy"
@@ -23,13 +37,28 @@ public class LightArea {
         proxy.onPreInit(event);
     }
 
+    @cpw.mods.fml.common.Mod.EventHandler
+    public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
+        proxy.onPreInit(event);
+    }
+
     @Mod.EventHandler
     public void onInit(FMLInitializationEvent event) {
         proxy.onInit(event);
     }
 
+    @cpw.mods.fml.common.Mod.EventHandler
+    public void onInit(cpw.mods.fml.common.event.FMLInitializationEvent event) {
+        proxy.onInit(event);
+    }
+
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new LightCommand(proxy, true, "light"));
+    }
+
+    @cpw.mods.fml.common.Mod.EventHandler
+    public void onServerStarting(cpw.mods.fml.common.event.FMLServerStartingEvent event) {
         event.registerServerCommand(new LightCommand(proxy, true, "light"));
     }
 

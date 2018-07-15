@@ -1,10 +1,5 @@
 package org.soraworld.lightarea;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
-import cpw.mods.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.entity.EntityPlayerSP;
 
@@ -20,15 +15,15 @@ public class FMLClientHandler {
         this.proxy = proxy;
     }
 
-    @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.side == Side.CLIENT && event.player instanceof EntityPlayerSP) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onPlayerTick(cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent event) {
+        if (event.side == cpw.mods.fml.relauncher.Side.CLIENT && event.player instanceof EntityPlayerSP) {
             proxy.setLightLevel(event.player);
         }
     }
 
-    @SubscribeEvent
-    public void onReceivePacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onReceivePacket(cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent event) {
         ByteBuf buf = event.packet.payload();
         byte ch = buf.readByte();
         if (ch == ADD) {
@@ -57,14 +52,14 @@ public class FMLClientHandler {
         }
     }
 
-    @SubscribeEvent
-    public void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onLogout(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
         proxy.resetLight(false);
     }
 
 
-    @SubscribeEvent
-    public void onLogout(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+    @cpw.mods.fml.common.eventhandler.SubscribeEvent
+    public void onLogout(cpw.mods.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         proxy.resetLight(false);
     }
 

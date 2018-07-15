@@ -1,7 +1,6 @@
 package org.soraworld.lightarea;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.MathHelper;
 
 import java.nio.charset.StandardCharsets;
 
@@ -16,9 +15,14 @@ public class Vec3i {
     }
 
     public Vec3i(Entity entity) {
-        this.x = MathHelper.floor_double(entity.posX);
-        this.y = MathHelper.floor_double(entity.posY);
-        this.z = MathHelper.floor_double(entity.posZ);
+        this.x = floor(entity.posX);
+        this.y = floor(entity.posY);
+        this.z = floor(entity.posZ);
+    }
+
+    public static int floor(double value) {
+        int i = (int) value;
+        return value < (double) i ? i - 1 : i;
     }
 
     public String toString() {

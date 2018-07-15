@@ -1,21 +1,23 @@
 package org.soraworld.lightarea;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
+import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -23,15 +25,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import static net.minecraftforge.common.MinecraftForge.MC_VERSION;
+
 public class CommonProxy {
 
     protected int AREA_ID = 0;
     protected Configuration config;
-    protected Item tool = Items.wooden_axe;
+    protected Item tool;
     protected final HashMap<Integer, HashSet<Area>> areas = new HashMap<>();
     protected final HashMap<EntityPlayer, Vec3i> pos1s = new HashMap<>();
     protected final HashMap<EntityPlayer, Vec3i> pos2s = new HashMap<>();
-    protected final FMLEventChannel channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("light");
+    protected final FMLEventChannel channel_new = NetworkRegistry.INSTANCE.newEventDrivenChannel("light");
+    protected final cpw.mods.fml.common.network.FMLEventChannel channel_old = cpw.mods.fml.common.network.NetworkRegistry.INSTANCE.newEventDrivenChannel("light");
 
     private static final byte ALL = 0;
     private static final byte ADD = 1;
@@ -41,8 +46,13 @@ public class CommonProxy {
     private static final String WECUI_CHANNEL = "WECUI";
 
     public void onPreInit(FMLPreInitializationEvent event) {
-        config = new Configuration(event.getSuggestedConfigurationFile(), "1.0.0");
-        FMLCommonHandler.instance().bus().register(new FMLHandler(this));
+        config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
+        MinecraftForge.EVENT_BUS.register(new FMLHandler(this));
+    }
+
+    public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
+        config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
+        cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(new FMLHandler(this));
     }
 
     public void onInit(FMLInitializationEvent event) {
@@ -50,12 +60,15 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(new EventBusHandler(this));
     }
 
+    public void onInit(cpw.mods.fml.common.event.FMLInitializationEvent event) {
+        load();
+        MinecraftForge.EVENT_BUS.register(new EventBusHandler(this));
+    }
+
     public void load() {
         config.load();
         String toolName = config.getString("tool", "general", "wooden_axe", "Select Tool");
-        Object object = Item.itemRegistry.getObject(toolName);
-        if (object instanceof Item) tool = (Item) object;
-        else tool = Items.wooden_axe;
+        setSelectTool(toolName);
         String[] strings = config.getStringList("areas", "general", new String[]{}, "Light Areas");
         if (strings != null) {
             for (String str : strings) {
@@ -69,6 +82,12 @@ public class CommonProxy {
                 }
             }
         }
+    }
+
+    public void setSelectTool(String toolName) {
+        Object object = Item.field_150901_e.getObject(toolName);
+        if (object instanceof Item) tool = (Item) object;
+        else tool = Items.field_151053_p;
     }
 
     public HashSet<Area> getDimSet(int dim) {
@@ -87,13 +106,13 @@ public class CommonProxy {
 
     public void setPos1(EntityPlayerMP player, Vec3i pos1, boolean msg) {
         pos1s.put(player, pos1);
-        if (msg) player.addChatMessage(new ChatComponentTranslation("set.pos1", pos1));
+        if (msg) sendChatTranslation(player, "set.pos1", pos1);
         updateCUI(player);
     }
 
     public void setPos2(EntityPlayerMP player, Vec3i pos2, boolean msg) {
         pos2s.put(player, pos2);
-        if (msg) player.addChatMessage(new ChatComponentTranslation("set.pos2", pos2));
+        if (msg) sendChatTranslation(player, "set.pos2", pos2);
         updateCUI(player);
     }
 
@@ -106,9 +125,15 @@ public class CommonProxy {
         } else if (pos2 == null) pos2 = pos1;
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
-        player.playerNetServerHandler.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
-        player.playerNetServerHandler.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
-        player.playerNetServerHandler.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
+        if (MC_VERSION.equals("1.7.10")) {
+            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
+            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
+            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
+        } else if (MC_VERSION.equals("1.12.2")) {
+            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
+            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
+            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
+        }
     }
 
     public void createArea(EntityPlayer player, float light) {
@@ -118,15 +143,15 @@ public class CommonProxy {
         if (light > 15.0F) light = 15.0F;
         if (pos1 != null && pos2 != null) {
             Area area = new Area(AREA_ID++, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, light);
-            getDimSet(player.dimension).add(area);
-            player.addChatMessage(new ChatComponentTranslation("create.area"));
-            sendAddToAll(player.dimension, area);
+            getDimSet(player.field_71093_bK).add(area);
+            sendChatTranslation(player, "create.area");
+            sendAddToAll(player.field_71093_bK, area);
             save();
         }
     }
 
     public void save() {
-        config.get("general", "tool", "wooden_axe", "Select Tool").set(Item.itemRegistry.getNameForObject(tool));
+        config.get("general", "tool", "wooden_axe", "Select Tool").set(Item.field_150901_e.getNameForObject(tool));
         List<String> list = new ArrayList<>();
         areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
         config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));
@@ -149,7 +174,7 @@ public class CommonProxy {
         buf.writeInt(area.y2);
         buf.writeInt(area.z2);
         buf.writeFloat(area.light);
-        channel.sendTo(new FMLProxyPacket(buf, "light"), player);
+        chSendTo(buf, player);
     }
 
     public void sendAddToAll(int dim, Area area) {
@@ -164,7 +189,7 @@ public class CommonProxy {
         buf.writeInt(area.y2);
         buf.writeInt(area.z2);
         buf.writeFloat(area.light);
-        channel.sendToAll(new FMLProxyPacket(buf, "light"));
+        chSendToAll(buf);
     }
 
     public void sendDelToAll(int dim, int id) {
@@ -172,7 +197,23 @@ public class CommonProxy {
         buf.writeByte(DEL);
         buf.writeByte(dim);
         buf.writeInt(id);
-        channel.sendToAll(new FMLProxyPacket(buf, "light"));
+        chSendToAll(buf);
+    }
+
+    private void chSendTo(ByteBuf buf, EntityPlayerMP player) {
+        if (MC_VERSION.equals("1.7.10")) {
+            channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
+        } else if (MC_VERSION.equals("1.12.2")) {
+            channel_new.sendTo(new FMLProxyPacket(new PacketBuffer(buf), "light"), player);
+        }
+    }
+
+    private void chSendToAll(ByteBuf buf) {
+        if (MC_VERSION.equals("1.7.10")) {
+            channel_old.sendToAll(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"));
+        } else if (MC_VERSION.equals("1.12.2")) {
+            channel_new.sendToAll(new FMLProxyPacket(new PacketBuffer(buf), "light"));
+        }
     }
 
     public void sendUpdateToAll(int dim, Area area) {
@@ -181,14 +222,14 @@ public class CommonProxy {
         buf.writeByte(dim);
         buf.writeInt(area.id);
         buf.writeFloat(area.light);
-        channel.sendToAll(new FMLProxyPacket(buf, "light"));
+        chSendToAll(buf);
     }
 
     public void deleteArea(EntityPlayerMP player) {
-        HashSet<Area> set = areas.get(player.dimension);
+        HashSet<Area> set = areas.get(player.field_71093_bK);
         if (set != null) set.removeIf(area -> {
             if (area.contains(new Vec3d(player))) {
-                sendDelToAll(player.dimension, area.id);
+                sendDelToAll(player.field_71093_bK, area.id);
                 save();
                 return true;
             }
@@ -197,7 +238,7 @@ public class CommonProxy {
     }
 
     public Area findAreaAt(EntityPlayer player) {
-        HashSet<Area> set = getDimSet(player.dimension);
+        HashSet<Area> set = getDimSet(player.field_71093_bK);
         for (Area area : set) if (area.contains(new Vec3d(player))) return area;
         return null;
     }
@@ -208,7 +249,15 @@ public class CommonProxy {
     }
 
     public boolean hasPerm(EntityPlayer player) {
-        return player.canCommandSenderUseCommand(4, "op");
+        return player.func_70003_b(4, "op");
+    }
+
+    public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
+        if (MC_VERSION.equals("1.7.10")) {
+            player.func_145747_a(new ChatComponentTranslation(key, args));
+        } else if (MC_VERSION.equals("1.12.2")) {
+            player.func_145747_a(new TextComponentTranslation(key, args));
+        }
     }
 
 }

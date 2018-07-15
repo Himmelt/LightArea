@@ -5,7 +5,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,7 +34,7 @@ public class LightCommand extends IICommand implements ICommand {
                 else try {
                     proxy.createArea(player, Float.valueOf(args.first()));
                 } catch (Throwable e) {
-                    player.addChatMessage(new ChatComponentTranslation("invalid.float"));
+                    proxy.sendChatTranslation(player, "invalid.float");
                 }
             }
         });
@@ -49,13 +49,13 @@ public class LightCommand extends IICommand implements ICommand {
             public void execute(EntityPlayerMP player, CommandArgs args) {
                 Area area = proxy.findAreaAt(player);
                 if (area != null) {
-                    player.addChatMessage(new ChatComponentTranslation("info.pos1", area.pos1()));
-                    player.addChatMessage(new ChatComponentTranslation("info.pos2", area.pos2()));
-                    player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
+                    proxy.sendChatTranslation(player, "info.pos1", area.pos1());
+                    proxy.sendChatTranslation(player, "info.pos2", area.pos2());
+                    proxy.sendChatTranslation(player, "info.light", area.light);
                     proxy.setPos1(player, area.vec1(), false);
                     proxy.setPos2(player, area.vec2(), false);
                 } else {
-                    player.addChatMessage(new ChatComponentTranslation("info.notInArea"));
+                    proxy.sendChatTranslation(player, "info.notInArea");
                 }
             }
         });
@@ -74,24 +74,24 @@ public class LightCommand extends IICommand implements ICommand {
                                 proxy.sendUpdateToAll(player.dimension, area);
                                 proxy.save();
                             }
-                            player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
+                            proxy.sendChatTranslation(player, "info.light", area.light);
                         } catch (Throwable e) {
-                            player.addChatMessage(new ChatComponentTranslation("invalid.float"));
+                            proxy.sendChatTranslation(player, "invalid.float");
                         }
-                    } else player.addChatMessage(new ChatComponentTranslation("info.light", area.light));
-                } else player.addChatMessage(new ChatComponentTranslation("info.notInArea"));
+                    } else proxy.sendChatTranslation(player, "info.light", area.light);
+                } else proxy.sendChatTranslation(player, "info.notInArea");
             }
         });
         addSub(new IICommand(true, "tool") {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
-                ItemStack stack = player.getHeldItem();
+                ItemStack stack = player.func_70694_bm();
                 if (stack != null) {
                     proxy.tool = stack.getItem();
                     proxy.save();
-                    player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
+                    //player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
                 } else {
-                    player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
+                    //player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
                 }
             }
         });
@@ -117,35 +117,11 @@ public class LightCommand extends IICommand implements ICommand {
     }
 
     public boolean checkPermission(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
-        return sender.canCommandSenderUseCommand(4, "op");
+        return sender.func_70003_b(4, "op");
     }
 
     @Nonnull
-    public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, @Nullable Vec3i targetPos) {
-        return tabCompletions(new CommandArgs(args));
-    }
-
-    public String getCommandName() {
-        return getName();
-    }
-
-    public String getCommandUsage(ICommandSender sender) {
-        return getUsage(sender);
-    }
-
-    public List getCommandAliases() {
-        return aliases;
-    }
-
-    public void processCommand(ICommandSender sender, String[] args) {
-        execute(sender, new CommandArgs(args));
-    }
-
-    public boolean canCommandSenderUseCommand(ICommandSender sender) {
-        return checkPermission(MinecraftServer.getServer(), sender);
-    }
-
-    public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+    public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, @Nullable BlockPos targetPos) {
         return tabCompletions(new CommandArgs(args));
     }
 
@@ -154,12 +130,46 @@ public class LightCommand extends IICommand implements ICommand {
     }
 
     public int compareTo(@Nonnull ICommand command) {
-        if (command instanceof LightCommand && ((LightCommand) command).getName().equals(this.getName())) return 0;
+        if (command instanceof LightCommand && command.getName().equals(this.getName())) return 0;
         else return 1;
     }
 
+
+    /* 1.7.10 - getCommandName */
+    public String func_71517_b() {
+        return getName();
+    }
+
+    /* 1.7.10 - getCommandUsage */
+    public String func_71518_a(ICommandSender sender) {
+        return getUsage(sender);
+    }
+
+    /* 1.7.10 - getCommandAliases */
+    public List func_71514_a() {
+        return aliases;
+    }
+
+    /* 1.7.10 - processCommand */
+    public void func_71515_b(ICommandSender sender, String[] args) {
+        execute(sender, new CommandArgs(args));
+    }
+
+    /* 1.7.10 - canCommandSenderUseCommand */
+    public boolean func_71519_b(ICommandSender sender) {
+        return sender.func_70003_b(4, "op");
+    }
+
+    /* 1.7.10 - addTabCompletionOptions */
+    public List func_71516_a(ICommandSender sender, String[] args) {
+        return tabCompletions(new CommandArgs(args));
+    }
+
+/*
     public int compareTo(Object object) {
         if (object instanceof LightCommand && ((LightCommand) object).getName().equals(this.getName())) return 0;
         else return 1;
     }
+*/
+
 }
