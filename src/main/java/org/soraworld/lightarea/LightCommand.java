@@ -31,7 +31,11 @@ public class LightCommand extends IICommand implements ICommand {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
                 if (args.empty()) proxy.createArea(player, 0);
-                else proxy.createArea(player, Float.valueOf(args.first()));
+                else try {
+                    proxy.createArea(player, Float.valueOf(args.first()));
+                } catch (Throwable e) {
+                    player.addChatMessage(new ChatComponentTranslation("invalid.float"));
+                }
             }
         });
         addSub(new IICommand(true, "delete") {
@@ -64,8 +68,8 @@ public class LightCommand extends IICommand implements ICommand {
                         try {
                             float old = area.light;
                             area.light = Float.valueOf(args.first());
-                            if (area.light < 0) area.light = 0.0F;
-                            if (area.light > 15) area.light = 15.0F;
+                            if (area.light < -15.0F) area.light = -15.0F;
+                            if (area.light > 15.0F) area.light = 15.0F;
                             if (old != area.light) {
                                 proxy.sendUpdateToAll(player.dimension, area);
                                 proxy.save();

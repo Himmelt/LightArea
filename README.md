@@ -16,7 +16,7 @@
 ```
 /light pos1             设置玩家当前位置为选区起点
 /light pos2             设置玩家当前位置为选区终点
-/light create [light]   根据选区创建区域，可选参数[light]为亮度级别[0.0 - 15.0]
+/light create [light]   根据选区创建区域，可选参数[light]为亮度级别[-15.0 - 15.0]
 /light delete           删除玩家当前所在的区域
 /light info             显示玩家当前所在区域的信息，如果客户端安装有WE-CUI，则会显示范围
 /light level [light]    查看/设置当前区域的亮度
@@ -44,7 +44,7 @@ right click to set the end point.
 ```
 /light pos1             set player's pos as area start point
 /light pos2             set player's pos as area end point
-/light create [light]   create area by current selected area, the optional arg is light (range: 0.0 - 15.0)
+/light create [light]   create area by current selected area, the optional arg is light (range: -15.0 - 15.0)
 /light delete           delete the area at player's pos
 /light info             show the info of the area at player's pos
 /light level [light]    get/set the current area's light

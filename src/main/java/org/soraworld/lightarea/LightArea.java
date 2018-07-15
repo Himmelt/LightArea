@@ -8,8 +8,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 @Mod(
         modid = "lightarea",
-        name = "LightArea",
-        version = "1.0.0"
+        name = "LightArea"
 )
 public class LightArea {
 

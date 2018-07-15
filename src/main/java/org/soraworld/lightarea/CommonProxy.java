@@ -114,6 +114,8 @@ public class CommonProxy {
     public void createArea(EntityPlayer player, float light) {
         Vec3i pos1 = pos1s.get(player);
         Vec3i pos2 = pos2s.get(player);
+        if (light < -15.0F) light = -15.0F;
+        if (light > 15.0F) light = 15.0F;
         if (pos1 != null && pos2 != null) {
             Area area = new Area(AREA_ID++, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, light);
             getDimSet(player.dimension).add(area);
