@@ -4,7 +4,9 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.util.HashSet;
 
@@ -22,9 +24,11 @@ public class ClientProxy extends CommonProxy {
 
     public void onInit(FMLInitializationEvent event) {
         super.onInit(event);
+        MinecraftForge.EVENT_BUS.register(new EventBusClientHandler(this));
     }
 
     public void setLightLevel(EntityPlayer sp) {
+        if (mc.currentScreen instanceof GuiVideoSettings) return;
         HashSet<Area> set = areas.get(sp.dimension);
         if (set != null) {
             for (Area area : set) {
@@ -37,8 +41,9 @@ public class ClientProxy extends CommonProxy {
         mc.gameSettings.gammaSetting = originalLight;
     }
 
-    public void resetLight() {
-        mc.gameSettings.gammaSetting = originalLight;
+    public void resetLight(boolean changeOptions) {
+        if (changeOptions) originalLight = mc.gameSettings.gammaSetting;
+        else mc.gameSettings.gammaSetting = originalLight;
     }
 
 }

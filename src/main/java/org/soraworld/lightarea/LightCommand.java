@@ -85,9 +85,9 @@ public class LightCommand extends IICommand implements ICommand {
                 if (stack != null) {
                     proxy.tool = stack.getItem();
                     proxy.save();
-                    player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName())));
+                    player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
                 } else {
-                    player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName())));
+                    player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
                 }
             }
         });

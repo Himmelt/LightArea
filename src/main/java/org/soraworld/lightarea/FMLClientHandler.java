@@ -59,13 +59,13 @@ public class FMLClientHandler {
 
     @SubscribeEvent
     public void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        proxy.resetLight();
+        proxy.resetLight(false);
     }
 
 
     @SubscribeEvent
     public void onLogout(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-        proxy.resetLight();
+        proxy.resetLight(false);
     }
 
 }
