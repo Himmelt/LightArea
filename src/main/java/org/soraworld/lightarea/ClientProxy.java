@@ -3,7 +3,6 @@ package org.soraworld.lightarea;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -16,7 +15,7 @@ public class ClientProxy extends CommonProxy {
 
     public void onPreInit(FMLPreInitializationEvent event) {
         super.onPreInit(event);
-        MinecraftForge.EVENT_BUS.register(new FMLClientHandler(this));
+        regEventBus(new FMLClientHandler(this));
         channel_new.register(new FMLClientHandler(this));
         originalLight = mc.gameSettings.gammaSetting;
     }
@@ -30,12 +29,12 @@ public class ClientProxy extends CommonProxy {
 
     public void onInit(FMLInitializationEvent event) {
         super.onInit(event);
-        MinecraftForge.EVENT_BUS.register(new EventBusClientHandler(this));
+        regEventBus(new EventBusClientHandler(this));
     }
 
     public void onInit(cpw.mods.fml.common.event.FMLInitializationEvent event) {
         super.onInit(event);
-        MinecraftForge.EVENT_BUS.register(new EventBusClientHandler(this));
+        regEventBus(new EventBusClientHandler(this));
     }
 
     public void setLightLevel(EntityPlayer sp) {

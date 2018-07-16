@@ -30,22 +30,26 @@ public class EventBusHandler {
     }
 
     @SubscribeEvent
-    public void onLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = player.func_70694_bm();
-        if (player instanceof EntityPlayerMP && proxy.hasPerm(player) && stack != null && stack.getItem().equals(proxy.tool)) {
-            proxy.setPos1((EntityPlayerMP) player, new Vec3i(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()), true);
-            event.setCanceled(true);
+    public void onLeftClick(PlayerInteractEvent event) {
+        if (event instanceof PlayerInteractEvent.LeftClickBlock) {
+            EntityPlayer player = event.getEntityPlayer();
+            ItemStack stack = player.func_70694_bm();
+            if (player instanceof EntityPlayerMP && proxy.hasPerm(player) && stack != null && stack.getItem().equals(proxy.tool)) {
+                proxy.setPos1((EntityPlayerMP) player, new Vec3i(event.getPos().func_177958_n(), event.getPos().func_177956_o(), event.getPos().func_177952_p()), true);
+                event.setCanceled(true);
+            }
         }
     }
 
     @SubscribeEvent
-    public void onRightClick(PlayerInteractEvent.RightClickBlock event) {
-        EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = player.func_70694_bm();
-        if (player instanceof EntityPlayerMP && proxy.hasPerm(player) && stack != null && stack.getItem().equals(proxy.tool)) {
-            proxy.setPos2((EntityPlayerMP) player, new Vec3i(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()), true);
-            event.setCanceled(true);
+    public void onRightClick(PlayerInteractEvent event) {
+        if (event instanceof PlayerInteractEvent.RightClickBlock) {
+            EntityPlayer player = event.getEntityPlayer();
+            ItemStack stack = player.func_70694_bm();
+            if (player instanceof EntityPlayerMP && proxy.hasPerm(player) && stack != null && stack.getItem().equals(proxy.tool)) {
+                proxy.setPos2((EntityPlayerMP) player, new Vec3i(event.getPos().func_177958_n(), event.getPos().func_177956_o(), event.getPos().func_177952_p()), true);
+                event.setCanceled(true);
+            }
         }
     }
 

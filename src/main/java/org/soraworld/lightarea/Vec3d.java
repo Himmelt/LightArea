@@ -32,8 +32,12 @@ public class Vec3d {
         double tmpY;
         if (boundingBox != null) {
             try {
-                AxisAlignedBB box = (AxisAlignedBB) boundingBox.get(entity);
-                tmpY = box.minY;
+                Object box = boundingBox.get(entity);
+                if (box instanceof AxisAlignedBB) {
+                    tmpY = ((AxisAlignedBB) box).field_72338_b;
+                } else if (box instanceof net.minecraft.util.AxisAlignedBB) {
+                    tmpY = ((net.minecraft.util.AxisAlignedBB) box).field_72338_b;
+                } else tmpY = entity.posY;
             } catch (Throwable ignored) {
                 tmpY = entity.posY;
             }

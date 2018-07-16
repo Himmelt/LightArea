@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
@@ -15,6 +16,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
@@ -48,6 +50,7 @@ public class CommonProxy {
     private static final String WECUI_CHANNEL = "WECUI";
 
     private static final Object REGISTRY;
+    private static final Object EVENT_BUS;
     private static final Method getObjectFromName;
     private static final Method getNameFromObject;
 
@@ -62,6 +65,15 @@ public class CommonProxy {
         } catch (Throwable ignored) {
         }
         REGISTRY = obj;
+        obj = null;
+        try {
+            field = MinecraftForge.class.getDeclaredField("EVENT_BUS");
+            field.setAccessible(true);
+            obj = field.get(null);
+            System.out.println(obj);
+        } catch (Throwable ignored) {
+        }
+        EVENT_BUS = obj;
         Method getObject = null, getName = null;
         try {
             Class<?> reg_1_7 = Class.forName("net.minecraft.util.RegistryNamespaced");
@@ -81,7 +93,7 @@ public class CommonProxy {
 
     public void onPreInit(FMLPreInitializationEvent event) {
         config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
-        MinecraftForge.EVENT_BUS.register(new FMLHandler(this));
+        regEventBus(new FMLHandler(this));
     }
 
     public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
@@ -89,14 +101,24 @@ public class CommonProxy {
         cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(new FMLHandler(this));
     }
 
+    /* 1.12.2 */
     public void onInit(FMLInitializationEvent event) {
         load();
-        MinecraftForge.EVENT_BUS.register(new EventBusHandler(this));
+        regEventBus(new EventBusHandler(this));
     }
 
+    /* 1.7.10 */
     public void onInit(cpw.mods.fml.common.event.FMLInitializationEvent event) {
         load();
-        MinecraftForge.EVENT_BUS.register(new EventBusHandler(this));
+        regEventBus(new EventBusHandler(this));
+    }
+
+    public void regEventBus(Object object) {
+        if (EVENT_BUS instanceof EventBus) {
+            ((EventBus) EVENT_BUS).register(object);
+        } else if (EVENT_BUS instanceof cpw.mods.fml.common.eventhandler.EventBus) {
+            ((cpw.mods.fml.common.eventhandler.EventBus) EVENT_BUS).register(object);
+        }
     }
 
     public void load() {
@@ -177,13 +199,13 @@ public class CommonProxy {
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
         if (MC_VERSION.equals("1.7.10")) {
-            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
-            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
-            player.field_71135_a.sendPacket(new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
+            player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
+            player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
+            player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
         } else if (MC_VERSION.equals("1.12.2")) {
-            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
-            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
-            player.field_71135_a.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
+            player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
+            player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
+            player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
         }
     }
 
@@ -288,7 +310,7 @@ public class CommonProxy {
         });
     }
 
-    public Area findAreaAt(EntityPlayer player) {
+    public Area findAreaAt(EntityPlayerMP player) {
         HashSet<Area> set = getDimSet(player.field_71093_bK);
         for (Area area : set) if (area.contains(new Vec3d(player))) return area;
         return null;
@@ -304,6 +326,7 @@ public class CommonProxy {
     }
 
     public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
+        // TODO BUG ???
         if (MC_VERSION.equals("1.7.10")) {
             player.func_145747_a(new ChatComponentTranslation(key, args));
         } else if (MC_VERSION.equals("1.12.2")) {

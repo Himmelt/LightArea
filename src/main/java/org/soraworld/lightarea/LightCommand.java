@@ -136,19 +136,25 @@ public class LightCommand extends IICommand implements ICommand {
 
 
     /* 1.7.10 - getCommandName */
+/*
     public String func_71517_b() {
         return getName();
     }
+*/
 
     /* 1.7.10 - getCommandUsage */
+/*
     public String func_71518_a(ICommandSender sender) {
         return getUsage(sender);
     }
+*/
 
     /* 1.7.10 - getCommandAliases */
+/*
     public List func_71514_a() {
         return aliases;
     }
+*/
 
     /* 1.7.10 - processCommand */
     public void func_71515_b(ICommandSender sender, String[] args) {

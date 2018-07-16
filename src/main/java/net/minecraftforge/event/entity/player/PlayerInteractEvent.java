@@ -33,7 +33,7 @@ public class PlayerInteractEvent extends Event {
 
     /* 1.12.2 */
     public BlockPos getPos() {
-        return BlockPos.ORIGIN;
+        return null;
     }
 
     /* 1.12.2 */
