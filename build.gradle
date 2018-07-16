@@ -26,7 +26,8 @@ minecraft {
 }
 
 dependencies {
-    compile files('lib/cpw-1.7.10-10.13.4.1614-1.7.10.jar')
+    compile files('lib/fml-1.7.10-10.13.4.1614.jar')
+    compile files('lib/fml-1.12.2-14.23.4.2736.jar')
 }
 
 processResources {

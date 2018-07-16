@@ -19,6 +19,8 @@ import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +46,38 @@ public class CommonProxy {
     private static final byte UPDATE = 3;
     private static final byte[] CUBOID = "s|cuboid".getBytes(StandardCharsets.UTF_8);
     private static final String WECUI_CHANNEL = "WECUI";
+
+    private static final Object REGISTRY;
+    private static final Method getObjectFromName;
+    private static final Method getNameFromObject;
+
+    static {
+        Field field = null;
+        Object obj = null;
+        try {
+            field = Item.class.getDeclaredField("field_150901_e");
+            field.setAccessible(true);
+            obj = field.get(null);
+            System.out.println(obj);
+        } catch (Throwable ignored) {
+        }
+        REGISTRY = obj;
+        Method getObject = null, getName = null;
+        try {
+            Class<?> reg_1_7 = Class.forName("net.minecraft.util.RegistryNamespaced");
+            Class<?> reg_1_12 = Class.forName("net.minecraft.util.registry.RegistryNamespaced");
+            if (reg_1_7 != null) {
+                getObject = reg_1_7.getDeclaredMethod("func_82594_a", String.class);
+                getName = reg_1_7.getDeclaredMethod("func_148750_c", Object.class);
+            } else if (reg_1_12 != null) {
+                getObject = reg_1_12.getDeclaredMethod("func_82594_a", String.class);
+                getName = reg_1_12.getDeclaredMethod("func_177774_c", Object.class);
+            }
+        } catch (Throwable ignored) {
+        }
+        getObjectFromName = getObject;
+        getNameFromObject = getName;
+    }
 
     public void onPreInit(FMLPreInitializationEvent event) {
         config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
@@ -84,10 +118,27 @@ public class CommonProxy {
         }
     }
 
-    public void setSelectTool(String toolName) {
-        Object object = Item.field_150901_e.getObject(toolName);
-        if (object instanceof Item) tool = (Item) object;
-        else tool = Items.field_151053_p;
+    private void setSelectTool(String toolName) {
+        if (REGISTRY != null && getObjectFromName != null) {
+            try {
+                Object object = getObjectFromName.invoke(REGISTRY, toolName);
+                if (object instanceof Item) tool = (Item) object;
+                else tool = Items.field_151053_p;
+            } catch (Throwable ignored) {
+                tool = Items.field_151053_p;
+            }
+        } else tool = Items.field_151053_p;
+    }
+
+    private String getToolName() {
+        if (REGISTRY != null && getNameFromObject != null) {
+            try {
+                Object object = getNameFromObject.invoke(REGISTRY, tool);
+                if (object instanceof String) return (String) object;
+            } catch (Throwable ignored) {
+            }
+        }
+        return "wooden_axe";
     }
 
     public HashSet<Area> getDimSet(int dim) {
@@ -151,7 +202,7 @@ public class CommonProxy {
     }
 
     public void save() {
-        config.get("general", "tool", "wooden_axe", "Select Tool").set(Item.field_150901_e.getNameForObject(tool));
+        config.get("general", "tool", "wooden_axe", "Select Tool").set(getToolName());
         List<String> list = new ArrayList<>();
         areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
         config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));

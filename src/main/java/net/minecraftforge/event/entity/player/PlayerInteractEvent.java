@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class PlayerInteractEvent extends Event {
+public class PlayerInteractEvent extends Event {
 
     /* 1.7.10*/
     public enum Action {

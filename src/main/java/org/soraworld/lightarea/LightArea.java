@@ -9,12 +9,14 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 @cpw.mods.fml.common.Mod(
         modid = LightArea.MOD_ID,
         name = LightArea.MOD_NAME,
-        version = LightArea.MOD_VERSION
+        version = LightArea.MOD_VERSION,
+        acceptedMinecraftVersions = "[1.7.10,1.12.2]"
 )
 @Mod(
         modid = LightArea.MOD_ID,
         name = LightArea.MOD_NAME,
-        version = LightArea.MOD_VERSION
+        version = LightArea.MOD_VERSION,
+        acceptedMinecraftVersions = "[1.7.10,1.12.2]"
 )
 public class LightArea {
 
