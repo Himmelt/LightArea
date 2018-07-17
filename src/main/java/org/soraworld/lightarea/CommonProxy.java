@@ -52,8 +52,8 @@ public class CommonProxy {
     private static final Method getObjectFromName;
     private static final Method getNameFromObject;
 
-    private static final boolean v_1_7;
-    private static final boolean v_1_12;
+    public static final boolean v_1_7;
+    public static final boolean v_1_12;
 
     static {
         boolean v17 = false, v112 = false;
@@ -74,14 +74,12 @@ public class CommonProxy {
         }
         v_1_7 = v17;
         v_1_12 = v112;
-        System.out.println("17:" + v_1_7 + ",112:" + v_1_12);
         Field field;
         Object obj = null;
         try {
             field = Item.class.getDeclaredField("field_150901_e");
             field.setAccessible(true);
             obj = field.get(null);
-            System.out.println(obj);
         } catch (Throwable ignored) {
         }
         REGISTRY = obj;
@@ -90,7 +88,6 @@ public class CommonProxy {
             field = MinecraftForge.class.getDeclaredField("EVENT_BUS");
             field.setAccessible(true);
             obj = field.get(null);
-            System.out.println(obj);
         } catch (Throwable ignored) {
         }
         EVENT_BUS = obj;
@@ -322,7 +319,7 @@ public class CommonProxy {
         HashSet<Area> set = areas.get(player.field_71093_bK);
         if (set != null) set.removeIf(area -> {
             if (area.contains(new Vec3d(player))) {
-                sendDelToAll(player.field_71093_bK, area.id);
+                if (player.field_71133_b.isDedicatedServer()) sendDelToAll(player.field_71093_bK, area.id);
                 save();
                 return true;
             }
@@ -346,13 +343,18 @@ public class CommonProxy {
     }
 
     public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
-        // TODO BUG ???
-        System.out.println("v17:" + v_1_7);
-        System.out.println("v112:" + v_1_12);
         if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, args));
         } else if (v_1_12) {
             player.func_145747_a(new TextComponentTranslation(key, args));
+        }
+    }
+
+    public void sendChatTranslation2(EntityPlayerMP player, String key, String objKey) {
+        if (v_1_7) {
+            player.func_145747_a(new ChatComponentTranslation(key, new ChatComponentTranslation(objKey)));
+        } else if (v_1_12) {
+            player.func_145747_a(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
         }
     }
 

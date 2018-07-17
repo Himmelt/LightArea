@@ -3,6 +3,7 @@ package org.soraworld.lightarea;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -85,13 +86,24 @@ public class LightCommand extends IICommand implements ICommand {
         addSub(new IICommand(true, "tool") {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
-                ItemStack stack = player.func_70694_bm();
-                if (stack != null) {
-                    proxy.tool = stack.getItem();
-                    proxy.save();
-                    //player.addChatMessage(new ChatComponentTranslation("tool.set", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
-                } else {
-                    //player.addChatMessage(new ChatComponentTranslation("tool.get", new ChatComponentTranslation(proxy.tool.getUnlocalizedName() + ".name")));
+                if (CommonProxy.v_1_7) {
+                    ItemStack stack = player.func_70694_bm();
+                    if (stack != null) {
+                        proxy.tool = stack.getItem();
+                        proxy.save();
+                        proxy.sendChatTranslation2(player, "tool.set", proxy.tool.getUnlocalizedName() + ".name");
+                    } else {
+                        proxy.sendChatTranslation2(player, "tool.get", proxy.tool.getUnlocalizedName() + ".name");
+                    }
+                } else if (CommonProxy.v_1_12) {
+                    ItemStack stack = player.func_184614_ca();
+                    if (stack != null && stack.getItem() != Items.AIR) {
+                        proxy.tool = stack.getItem();
+                        proxy.save();
+                        proxy.sendChatTranslation2(player, "tool.set", proxy.tool.getUnlocalizedName() + ".name");
+                    } else {
+                        proxy.sendChatTranslation2(player, "tool.get", proxy.tool.getUnlocalizedName() + ".name");
+                    }
                 }
             }
         });

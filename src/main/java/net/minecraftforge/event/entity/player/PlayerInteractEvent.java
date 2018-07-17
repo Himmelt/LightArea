@@ -23,7 +23,7 @@ public class PlayerInteractEvent extends Event {
 
     /* 1.12.2 */
     public EntityPlayer getEntityPlayer() {
-        return null;
+        return entityPlayer;
     }
 
     /* 1.12.2 */
