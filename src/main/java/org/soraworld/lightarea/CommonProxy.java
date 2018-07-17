@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import static net.minecraftforge.common.MinecraftForge.MC_VERSION;
-
 public class CommonProxy {
 
     protected int AREA_ID = 0;
@@ -54,8 +52,30 @@ public class CommonProxy {
     private static final Method getObjectFromName;
     private static final Method getNameFromObject;
 
+    private static final boolean v_1_7;
+    private static final boolean v_1_12;
+
     static {
-        Field field = null;
+        boolean v17 = false, v112 = false;
+        try {
+            Field MC_VERSION = MinecraftForge.class.getDeclaredField("MC_VERSION");
+            MC_VERSION.setAccessible(true);
+            String version = (String) MC_VERSION.get(null);
+            if (version.contains("1.7")) {
+                v17 = true;
+                v112 = false;
+            } else if (version.contains("1.12")) {
+                v17 = false;
+                v112 = true;
+            }
+        } catch (Throwable ignored) {
+            v17 = false;
+            v112 = false;
+        }
+        v_1_7 = v17;
+        v_1_12 = v112;
+        System.out.println("17:" + v_1_7 + ",112:" + v_1_12);
+        Field field;
         Object obj = null;
         try {
             field = Item.class.getDeclaredField("field_150901_e");
@@ -198,11 +218,11 @@ public class CommonProxy {
         } else if (pos2 == null) pos2 = pos1;
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
-        if (MC_VERSION.equals("1.7.10")) {
+        if (v_1_7) {
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
-        } else if (MC_VERSION.equals("1.12.2")) {
+        } else if (v_1_12) {
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
@@ -274,17 +294,17 @@ public class CommonProxy {
     }
 
     private void chSendTo(ByteBuf buf, EntityPlayerMP player) {
-        if (MC_VERSION.equals("1.7.10")) {
+        if (v_1_7) {
             channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
-        } else if (MC_VERSION.equals("1.12.2")) {
+        } else if (v_1_12) {
             channel_new.sendTo(new FMLProxyPacket(new PacketBuffer(buf), "light"), player);
         }
     }
 
     private void chSendToAll(ByteBuf buf) {
-        if (MC_VERSION.equals("1.7.10")) {
+        if (v_1_7) {
             channel_old.sendToAll(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"));
-        } else if (MC_VERSION.equals("1.12.2")) {
+        } else if (v_1_12) {
             channel_new.sendToAll(new FMLProxyPacket(new PacketBuffer(buf), "light"));
         }
     }
@@ -327,9 +347,11 @@ public class CommonProxy {
 
     public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
         // TODO BUG ???
-        if (MC_VERSION.equals("1.7.10")) {
+        System.out.println("v17:" + v_1_7);
+        System.out.println("v112:" + v_1_12);
+        if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, args));
-        } else if (MC_VERSION.equals("1.12.2")) {
+        } else if (v_1_12) {
             player.func_145747_a(new TextComponentTranslation(key, args));
         }
     }
