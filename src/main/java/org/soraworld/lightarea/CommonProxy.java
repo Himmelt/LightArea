@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
@@ -53,27 +54,50 @@ public class CommonProxy {
     private static final Method getNameFromObject;
 
     public static final boolean v_1_7;
+    public static final boolean v_1_8;
+    public static final boolean v_1_9;
+    public static final boolean v_1_10;
+    public static final boolean v_1_11;
     public static final boolean v_1_12;
+    public static final boolean v_1_13;
 
     static {
-        boolean v17 = false, v112 = false;
+        boolean v1_7 = false, v1_8 = false, v1_9 = false, v1_10 = false, v1_11 = false, v1_12 = false, v1_13 = false;
         try {
             Field MC_VERSION = MinecraftForge.class.getDeclaredField("MC_VERSION");
             MC_VERSION.setAccessible(true);
             String version = (String) MC_VERSION.get(null);
             if (version.contains("1.7")) {
-                v17 = true;
-                v112 = false;
+                v1_7 = true;
+                v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+            } else if (version.contains("1.8")) {
+                v1_8 = true;
+                v1_7 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+            } else if (version.contains("1.9")) {
+                v1_9 = true;
+                v1_7 = v1_8 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+            } else if (version.contains("1.10")) {
+                v1_10 = true;
+                v1_7 = v1_8 = v1_9 = v1_11 = v1_12 = v1_13 = false;
+            } else if (version.contains("1.11")) {
+                v1_11 = true;
+                v1_7 = v1_8 = v1_9 = v1_10 = v1_12 = v1_13 = false;
             } else if (version.contains("1.12")) {
-                v17 = false;
-                v112 = true;
+                v1_12 = true;
+                v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_13 = false;
+            } else if (version.contains("1.13")) {
+                v1_13 = true;
+                v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = false;
             }
         } catch (Throwable ignored) {
-            v17 = false;
-            v112 = false;
         }
-        v_1_7 = v17;
-        v_1_12 = v112;
+        v_1_7 = v1_7;
+        v_1_8 = v1_8;
+        v_1_9 = v1_9;
+        v_1_10 = v1_10;
+        v_1_11 = v1_11;
+        v_1_12 = v1_12;
+        v_1_13 = v1_13;
         Field field;
         Object obj = null;
         try {
@@ -93,19 +117,22 @@ public class CommonProxy {
         EVENT_BUS = obj;
         Method getObject = null, getName = null;
         try {
-            Class<?> reg_1_7 = Class.forName("net.minecraft.util.RegistryNamespaced");
-            Class<?> reg_1_12 = Class.forName("net.minecraft.util.registry.RegistryNamespaced");
-            if (reg_1_7 != null) {
-                getObject = reg_1_7.getDeclaredMethod("func_82594_a", String.class);
-                getName = reg_1_7.getDeclaredMethod("func_148750_c", Object.class);
-            } else if (reg_1_12 != null) {
-                getObject = reg_1_12.getDeclaredMethod("func_82594_a", String.class);
-                getName = reg_1_12.getDeclaredMethod("func_177774_c", Object.class);
+            Class<?> regOld = Class.forName("net.minecraft.util.RegistryNamespaced");
+            Class<?> regNew = Class.forName("net.minecraft.util.registry.RegistryNamespaced");
+            if (regOld != null) {
+                getObject = regOld.getDeclaredMethod("func_82594_a", String.class);
+                getName = regOld.getDeclaredMethod("func_148750_c", Object.class);
+            } else if (regNew != null) {
+                getObject = regNew.getDeclaredMethod("func_82594_a", String.class);
+                getName = regNew.getDeclaredMethod("func_177774_c", Object.class);
             }
         } catch (Throwable ignored) {
         }
         getObjectFromName = getObject;
         getNameFromObject = getName;
+        if (getObject == null && getName == null) {
+            System.out.println("!!!!!! This shouldn't be here !");
+        }
     }
 
     public void onPreInit(FMLPreInitializationEvent event) {
@@ -219,7 +246,7 @@ public class CommonProxy {
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
-        } else if (v_1_12) {
+        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
@@ -293,7 +320,7 @@ public class CommonProxy {
     private void chSendTo(ByteBuf buf, EntityPlayerMP player) {
         if (v_1_7) {
             channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
-        } else if (v_1_12) {
+        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             channel_new.sendTo(new FMLProxyPacket(new PacketBuffer(buf), "light"), player);
         }
     }
@@ -301,7 +328,7 @@ public class CommonProxy {
     private void chSendToAll(ByteBuf buf) {
         if (v_1_7) {
             channel_old.sendToAll(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"));
-        } else if (v_1_12) {
+        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             channel_new.sendToAll(new FMLProxyPacket(new PacketBuffer(buf), "light"));
         }
     }
@@ -345,7 +372,7 @@ public class CommonProxy {
     public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
         if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, args));
-        } else if (v_1_12) {
+        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.func_145747_a(new TextComponentTranslation(key, args));
         }
     }
@@ -353,8 +380,39 @@ public class CommonProxy {
     public void sendChatTranslation2(EntityPlayerMP player, String key, String objKey) {
         if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, new ChatComponentTranslation(objKey)));
-        } else if (v_1_12) {
+        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.func_145747_a(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
+        }
+    }
+
+    public void commandTool(EntityPlayerMP player) {
+        if (v_1_7) {
+            ItemStack stack = player.func_70694_bm();
+            if (stack != null) {
+                tool = stack.getItem();
+                save();
+                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+            } else {
+                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+            }
+        } else if (v_1_10) {
+            ItemStack stack = player.func_184614_ca();
+            if (stack != null) {
+                tool = stack.getItem();
+                save();
+                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+            } else {
+                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+            }
+        } else if (v_1_11 || v_1_12 || v_1_13) {
+            ItemStack stack = player.func_184614_ca();
+            if (stack != null && stack.getItem() != Items.AIR) {
+                tool = stack.getItem();
+                save();
+                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+            } else {
+                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+            }
         }
     }
 

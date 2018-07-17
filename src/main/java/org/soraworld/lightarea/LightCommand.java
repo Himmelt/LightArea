@@ -3,13 +3,9 @@ package org.soraworld.lightarea;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class LightCommand extends IICommand implements ICommand {
@@ -86,68 +82,45 @@ public class LightCommand extends IICommand implements ICommand {
         addSub(new IICommand(true, "tool") {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
-                if (CommonProxy.v_1_7) {
-                    ItemStack stack = player.func_70694_bm();
-                    if (stack != null) {
-                        proxy.tool = stack.getItem();
-                        proxy.save();
-                        proxy.sendChatTranslation2(player, "tool.set", proxy.tool.getUnlocalizedName() + ".name");
-                    } else {
-                        proxy.sendChatTranslation2(player, "tool.get", proxy.tool.getUnlocalizedName() + ".name");
-                    }
-                } else if (CommonProxy.v_1_12) {
-                    ItemStack stack = player.func_184614_ca();
-                    if (stack != null && stack.getItem() != Items.AIR) {
-                        proxy.tool = stack.getItem();
-                        proxy.save();
-                        proxy.sendChatTranslation2(player, "tool.set", proxy.tool.getUnlocalizedName() + ".name");
-                    } else {
-                        proxy.sendChatTranslation2(player, "tool.get", proxy.tool.getUnlocalizedName() + ".name");
-                    }
-                }
+                proxy.commandTool(player);
             }
         });
     }
 
-    @Nonnull
-    public String getName() {
+    public String func_71517_b() {
         return aliases.get(0);
     }
 
-    @Nonnull
-    public String getUsage(@Nonnull ICommandSender sender) {
+    public String func_71518_a(ICommandSender sender) {
         return "/light pos1/pos2/create/level/info/delete/tool";
     }
 
-    @Nonnull
-    public List<String> getAliases() {
+    public List func_71514_a() {
         return aliases;
     }
 
-    public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) {
+    public void func_184881_a(MinecraftServer server, ICommandSender sender, String[] args) {
         execute(sender, new CommandArgs(args));
     }
 
-    public boolean checkPermission(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
+    public boolean func_184882_a(MinecraftServer server, ICommandSender sender) {
         return sender.func_70003_b(4, "op");
     }
 
-    @Nonnull
-    public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, @Nullable BlockPos targetPos) {
+    public List<String> func_184883_a(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
         return tabCompletions(new CommandArgs(args));
     }
 
-    public boolean isUsernameIndex(@Nonnull String[] args, int index) {
+    public boolean func_82358_a(String[] args, int index) {
         return false;
     }
 
-    public int compareTo(@Nonnull ICommand command) {
-        if (command instanceof LightCommand && command.getName().equals(this.getName())) return 0;
+    public int compareTo(ICommand command) {
+        if (command instanceof LightCommand && command.func_71517_b().equals(this.func_71517_b())) return 0;
         else return 1;
     }
 
-
-    /* 1.7.10 - getCommandName */
+    /* 1.7.10 & 1.10.2 - getCommandName */
 /*
     public String func_71517_b() {
         return getName();
