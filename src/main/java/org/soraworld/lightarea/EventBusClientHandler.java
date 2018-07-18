@@ -14,8 +14,8 @@ public class EventBusClientHandler {
 
     @SubscribeEvent
     public void onVideoSetting_new(GuiScreenEvent.DrawScreenEvent.Post event) {
-        if (CommonProxy.v_1_8 && event.gui instanceof GuiVideoSettings) {
-            proxy.resetLight(true);
+        if (CommonProxy.v_1_8) {
+            if (event.gui instanceof GuiVideoSettings) proxy.resetLight(true);
         } else if (event.getGui() instanceof GuiVideoSettings) {
             proxy.resetLight(true);
         }
