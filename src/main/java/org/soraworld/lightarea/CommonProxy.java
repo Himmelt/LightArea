@@ -12,6 +12,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -117,20 +118,43 @@ public class CommonProxy {
         EVENT_BUS = obj;
         Method getObject = null, getName = null;
         try {
-            Class<?> regOld = Class.forName("net.minecraft.util.RegistryNamespaced");
-            Class<?> regNew = Class.forName("net.minecraft.util.registry.RegistryNamespaced");
-            if (regOld != null) {
-                getObject = regOld.getDeclaredMethod("func_82594_a", String.class);
-                getName = regOld.getDeclaredMethod("func_148750_c", Object.class);
-            } else if (regNew != null) {
-                getObject = regNew.getDeclaredMethod("func_82594_a", String.class);
-                getName = regNew.getDeclaredMethod("func_177774_c", Object.class);
+            Class<?> regOld = null, regNew = null;
+            try {
+                regOld = Class.forName("net.minecraft.util.RegistryNamespaced");
+            } catch (Throwable ignored) {
             }
-        } catch (Throwable ignored) {
+            try {
+                regNew = Class.forName("net.minecraft.util.registry.RegistryNamespaced");
+            } catch (Throwable ignored) {
+            }
+            if (regOld != null) {
+                //getObject = regOld.getDeclaredMethod("func_82594_a", String.class);
+                //getName = regOld.getDeclaredMethod("func_148750_c", Object.class);
+                Method[] methods = regOld.getDeclaredMethods();
+                if (methods != null) {
+                    for (Method method : methods) {
+                        if (method.getName().equals("func_82594_a")) getObject = method;
+                        if (method.getName().equals("func_148750_c")) getName = method;
+                    }
+                }
+            } else if (regNew != null) {
+                //getObject = regNew.getDeclaredMethod("func_82594_a", String.class);
+                //getName = regNew.getDeclaredMethod("func_177774_c", Object.class);
+                Method[] methods = regNew.getDeclaredMethods();
+                if (methods != null) {
+                    for (Method method : methods) {
+                        if (method.getName().equals("func_82594_a")) getObject = method;
+                        if (method.getName().equals("func_177774_c")) getName = method;
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            // TODO remove
+            e.printStackTrace();
         }
         getObjectFromName = getObject;
         getNameFromObject = getName;
-        if (getObject == null && getName == null) {
+        if (getObject == null || getName == null) {
             System.out.println("!!!!!! This shouldn't be here !");
         }
     }
@@ -187,10 +211,16 @@ public class CommonProxy {
     private void setSelectTool(String toolName) {
         if (REGISTRY != null && getObjectFromName != null) {
             try {
-                Object object = getObjectFromName.invoke(REGISTRY, toolName);
+                Object object = null;
+                if (v_1_7) {
+                    object = getObjectFromName.invoke(REGISTRY, toolName);
+                } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+                    object = getObjectFromName.invoke(REGISTRY, new ResourceLocation(toolName));
+                }
                 if (object instanceof Item) tool = (Item) object;
                 else tool = Items.field_151053_p;
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                e.printStackTrace();
                 tool = Items.field_151053_p;
             }
         } else tool = Items.field_151053_p;
@@ -201,6 +231,7 @@ public class CommonProxy {
             try {
                 Object object = getNameFromObject.invoke(REGISTRY, tool);
                 if (object instanceof String) return (String) object;
+                if (object instanceof ResourceLocation) return object.toString();
             } catch (Throwable ignored) {
             }
         }
@@ -246,7 +277,7 @@ public class CommonProxy {
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
             player.field_71135_a.sendPacket((Packet<?>) new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
-        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 | v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
             player.field_71135_a.sendPacket((Packet<?>) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
@@ -320,7 +351,7 @@ public class CommonProxy {
     private void chSendTo(ByteBuf buf, EntityPlayerMP player) {
         if (v_1_7) {
             channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
-        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             channel_new.sendTo(new FMLProxyPacket(new PacketBuffer(buf), "light"), player);
         }
     }
@@ -328,7 +359,7 @@ public class CommonProxy {
     private void chSendToAll(ByteBuf buf) {
         if (v_1_7) {
             channel_old.sendToAll(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"));
-        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             channel_new.sendToAll(new FMLProxyPacket(new PacketBuffer(buf), "light"));
         }
     }
@@ -372,7 +403,7 @@ public class CommonProxy {
     public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
         if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, args));
-        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.func_145747_a(new TextComponentTranslation(key, args));
         }
     }
@@ -380,7 +411,7 @@ public class CommonProxy {
     public void sendChatTranslation2(EntityPlayerMP player, String key, String objKey) {
         if (v_1_7) {
             player.func_145747_a(new ChatComponentTranslation(key, new ChatComponentTranslation(objKey)));
-        } else if (v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.func_145747_a(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
         }
     }
@@ -395,7 +426,7 @@ public class CommonProxy {
             } else {
                 sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
             }
-        } else if (v_1_10) {
+        } else if (v_1_9 || v_1_10) {
             ItemStack stack = player.func_184614_ca();
             if (stack != null) {
                 tool = stack.getItem();

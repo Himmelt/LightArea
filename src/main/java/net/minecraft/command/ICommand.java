@@ -3,7 +3,6 @@ package net.minecraft.command;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public interface ICommand extends Comparable<ICommand> {
@@ -37,7 +36,7 @@ public interface ICommand extends Comparable<ICommand> {
     /*
      * 1.10.2-1.12.2 - checkPermission
      * */
-    boolean func_184882_a(MinecraftServer server, ICommandSender args);
+    boolean func_184882_a(MinecraftServer server, ICommandSender sender);
 
     /*
      * 1.7.10 - canCommandSenderUseCommand
@@ -48,7 +47,7 @@ public interface ICommand extends Comparable<ICommand> {
      * 1.11.2-1.12.2 - getTabCompletions
      * 1.10.2 - getTabCompletionOptions
      * */
-    List<String> func_184883_a(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos);
+    List<String> func_184883_a(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos);
 
     /*
      * 1.7.10 - addTabCompletionOptions
