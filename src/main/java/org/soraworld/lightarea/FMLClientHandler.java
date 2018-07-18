@@ -35,7 +35,8 @@ public class FMLClientHandler {
 
     @SubscribeEvent
     public void onReceivePacket(FMLNetworkEvent.ClientCustomPacketEvent event) {
-        handlePacket(event.getPacket().payload());
+        if (CommonProxy.v_1_8) handlePacket(event.packet.payload());
+        else handlePacket(event.getPacket().payload());
     }
 
     @cpw.mods.fml.common.eventhandler.SubscribeEvent
@@ -43,7 +44,7 @@ public class FMLClientHandler {
         handlePacket(event.packet.payload());
     }
 
-    public void handlePacket(ByteBuf buf) {
+    private void handlePacket(ByteBuf buf) {
         byte ch = buf.readByte();
         if (ch == ADD) {
             byte dim = buf.readByte();

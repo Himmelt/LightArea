@@ -1,6 +1,6 @@
-package net.minecraft.util.math;
+package net.minecraft.util;
 
-/* 1.9-1.12.2 */
+/* 1.8 */
 public class BlockPos {
     /* getX */
     public int func_177958_n() {

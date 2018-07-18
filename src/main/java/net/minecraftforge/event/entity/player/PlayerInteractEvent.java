@@ -14,11 +14,13 @@ public class PlayerInteractEvent extends Event {
         LEFT_CLICK_BLOCK
     }
 
-    /* 1.7.10 */
+    /* 1.7.10-1.8 */
     public Action action;
     /* 1.7.10 */
     public int x, y, z;
-    /* 1.7.10 */
+    /* 1.8 */
+    public net.minecraft.util.BlockPos pos;
+    /* 1.7.10-1.8 */
     public EntityPlayer entityPlayer;
 
     /* 1.12.2 */

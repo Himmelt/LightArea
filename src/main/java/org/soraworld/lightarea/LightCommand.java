@@ -115,6 +115,10 @@ public class LightCommand extends IICommand implements ICommand {
         return false;
     }
 
+    public List func_180525_a(ICommandSender sender, String[] args, net.minecraft.util.BlockPos pos) {
+        return tabCompletions(new CommandArgs(args));
+    }
+
     public int compareTo(ICommand command) {
         if (command instanceof LightCommand && command.func_71517_b().equals(this.func_71517_b())) return 0;
         else return 1;
