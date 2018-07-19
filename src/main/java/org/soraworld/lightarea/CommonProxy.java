@@ -271,10 +271,14 @@ public class CommonProxy {
         } else if (pos2 == null) pos2 = pos1;
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
-        if (v_1_7 || v_1_8) {
+        if (v_1_7) {
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, CUBOID));
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, pos1.cui(1, size)));
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, pos2.cui(2, size)));
+        } else if (v_1_8) {
+            player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
+            player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
+            player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
         } else if (v_1_9 | v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             player.field_71135_a.sendPacket((Packet) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
