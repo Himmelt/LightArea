@@ -30,6 +30,10 @@ public class Area {
         return contains(pos.x, pos.y, pos.z);
     }
 
+    boolean conflict(Area area) {
+        return x1 <= area.x2 && x2 >= area.x1 && y1 <= area.y2 && y2 >= area.y1 && z1 <= area.z2 && z2 >= area.z1;
+    }
+
     @Override
     public int hashCode() {
         return id;

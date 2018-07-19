@@ -295,13 +295,17 @@ public class CommonProxy {
         if (light > 15.0F) light = 15.0F;
         if (pos1 != null && pos2 != null) {
             Area area = new Area(AREA_ID++, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, light);
-            getDimSet(player.field_71093_bK).add(area);
-            sendChatTranslation(player, "create.area");
-            if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).field_71133_b.isDedicatedServer()) {
-                sendAddToAll(player.field_71093_bK, area);
+            if (conflict(player.field_71093_bK, area)) {
+                sendChatTranslation(player, "create.conflict");
+            } else {
+                getDimSet(player.field_71093_bK).add(area);
+                sendChatTranslation(player, "create.area");
+                if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).field_71133_b.isDedicatedServer()) {
+                    sendAddToAll(player.field_71093_bK, area);
+                }
+                save();
             }
-            save();
-        }
+        } else sendChatTranslation(player, "notSelect");
     }
 
     public void save() {
@@ -399,6 +403,14 @@ public class CommonProxy {
         HashSet<Area> set = getDimSet(player.field_71093_bK);
         for (Area area : set) if (area.contains(new Vec3d(player))) return area;
         return null;
+    }
+
+    public boolean conflict(int dim, Area intent) {
+        HashSet<Area> set = getDimSet(dim);
+        for (Area area : set) {
+            if (intent.conflict(area)) return true;
+        }
+        return false;
     }
 
     public void clearSelect(EntityPlayer player) {

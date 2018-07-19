@@ -11,3 +11,5 @@ tool.set=选择工具设置为 : %s
 tool.get=当前选择工具为 : %s
 
 invalid.float=参数不是有效的小数
+notSelect=请先创建一个选区
+create.conflict=选区和已有区域冲突，请重新选择
