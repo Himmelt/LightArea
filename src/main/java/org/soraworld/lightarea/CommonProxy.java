@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -160,7 +161,8 @@ public class CommonProxy {
 
     public void onPreInit(FMLPreInitializationEvent event) {
         config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
-        regEventBus(new FMLHandler(this));
+        if (v_1_8) FMLCommonHandler.instance().bus().register(new FMLHandler(this));
+        else regEventBus(new FMLHandler(this));
     }
 
     public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
@@ -295,7 +297,9 @@ public class CommonProxy {
             Area area = new Area(AREA_ID++, pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, light);
             getDimSet(player.field_71093_bK).add(area);
             sendChatTranslation(player, "create.area");
-            sendAddToAll(player.field_71093_bK, area);
+            if (player instanceof EntityPlayerMP && ((EntityPlayerMP) player).field_71133_b.isDedicatedServer()) {
+                sendAddToAll(player.field_71093_bK, area);
+            }
             save();
         }
     }
@@ -309,7 +313,9 @@ public class CommonProxy {
     }
 
     public void loginSend(EntityPlayerMP player) {
-        areas.forEach((dim, areas) -> areas.forEach(area -> sendAdd(player, dim, area)));
+        if (player.field_71133_b.isDedicatedServer()) {
+            areas.forEach((dim, areas) -> areas.forEach(area -> sendAdd(player, dim, area)));
+        }
     }
 
     public void sendAdd(EntityPlayerMP player, int dim, Area area) {
@@ -350,6 +356,15 @@ public class CommonProxy {
         chSendToAll(buf);
     }
 
+    public void sendUpdateToAll(int dim, Area area) {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(UPDATE);
+        buf.writeByte(dim);
+        buf.writeInt(area.id);
+        buf.writeFloat(area.light);
+        chSendToAll(buf);
+    }
+
     private void chSendTo(ByteBuf buf, EntityPlayerMP player) {
         if (v_1_7) {
             channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
@@ -366,20 +381,13 @@ public class CommonProxy {
         }
     }
 
-    public void sendUpdateToAll(int dim, Area area) {
-        ByteBuf buf = Unpooled.buffer();
-        buf.writeByte(UPDATE);
-        buf.writeByte(dim);
-        buf.writeInt(area.id);
-        buf.writeFloat(area.light);
-        chSendToAll(buf);
-    }
-
     public void deleteArea(EntityPlayerMP player) {
         HashSet<Area> set = areas.get(player.field_71093_bK);
         if (set != null) set.removeIf(area -> {
             if (area.contains(new Vec3d(player))) {
-                if (player.field_71133_b.isDedicatedServer()) sendDelToAll(player.field_71093_bK, area.id);
+                if (player.field_71133_b.isDedicatedServer()) {
+                    sendDelToAll(player.field_71093_bK, area.id);
+                }
                 save();
                 return true;
             }

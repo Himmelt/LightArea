@@ -3,6 +3,7 @@ package org.soraworld.lightarea;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -15,7 +16,8 @@ public class ClientProxy extends CommonProxy {
 
     public void onPreInit(FMLPreInitializationEvent event) {
         super.onPreInit(event);
-        regEventBus(new FMLClientHandler(this));
+        if (v_1_8) FMLCommonHandler.instance().bus().register(new FMLClientHandler(this));
+        else regEventBus(new FMLClientHandler(this));
         channel_new.register(new FMLClientHandler(this));
         originalLight = mc.gameSettings.gammaSetting;
     }
@@ -39,10 +41,11 @@ public class ClientProxy extends CommonProxy {
 
     public void setLightLevel(EntityPlayer sp) {
         if (mc.currentScreen instanceof GuiVideoSettings) return;
-        HashSet<Area> set = areas.get(sp.dimension);
+        HashSet<Area> set = areas.get(sp.field_71093_bK);
         if (set != null) {
+            Vec3d pos = new Vec3d(sp);
             for (Area area : set) {
-                if (area.contains(new Vec3d(sp))) {
+                if (area.contains(pos)) {
                     mc.gameSettings.gammaSetting = area.light;
                     return;
                 }

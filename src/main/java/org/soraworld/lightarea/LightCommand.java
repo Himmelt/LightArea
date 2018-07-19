@@ -68,7 +68,9 @@ public class LightCommand extends IICommand implements ICommand {
                             if (area.light < -15.0F) area.light = -15.0F;
                             if (area.light > 15.0F) area.light = 15.0F;
                             if (old != area.light) {
-                                proxy.sendUpdateToAll(player.dimension, area);
+                                if (player.field_71133_b.isDedicatedServer()) {
+                                    proxy.sendUpdateToAll(player.dimension, area);
+                                }
                                 proxy.save();
                             }
                             proxy.sendChatTranslation(player, "info.light", area.light);
