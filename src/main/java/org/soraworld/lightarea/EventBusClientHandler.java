@@ -15,16 +15,16 @@ public class EventBusClientHandler {
     @SubscribeEvent
     public void onVideoSetting_new(GuiScreenEvent.DrawScreenEvent.Post event) {
         if (CommonProxy.v_1_8) {
-            if (event.gui instanceof GuiVideoSettings) proxy.resetLight(true);
+            if (event.gui instanceof GuiVideoSettings) proxy.saveLight();
         } else if (event.getGui() instanceof GuiVideoSettings) {
-            proxy.resetLight(true);
+            proxy.saveLight();
         }
     }
 
     @cpw.mods.fml.common.eventhandler.SubscribeEvent
     public void onVideoSetting_old(GuiScreenEvent.DrawScreenEvent.Post event) {
         if (event.gui instanceof GuiVideoSettings) {
-            proxy.resetLight(true);
+            proxy.saveLight();
         }
     }
 }

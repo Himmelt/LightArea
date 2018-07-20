@@ -11,6 +11,7 @@
 ### 特性
 1. 手持选区工具(默认木斧)左键选择起点，右键选择终点。
 2. 在安装有WE-CUI的客户端，可以像WE一样显示选区边界。
+3. 单文件支持 1.7.10 及以后版本。
 
 ### 指令
 ```
@@ -39,6 +40,7 @@ If we set the gamma lower than 1.0, we can make the area darker.
 1. Hold the select tool(default WoodenAxe), left click to set the start point, 
 right click to set the end point.
 2. The client with WE-CUI mod can show the selected area's border.
+3. Single file supports 1.7.10 version and higher.
 
 ### Commands
 ```

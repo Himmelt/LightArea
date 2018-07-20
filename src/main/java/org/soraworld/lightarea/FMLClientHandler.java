@@ -3,17 +3,12 @@ package org.soraworld.lightarea;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 public class FMLClientHandler {
 
     private final ClientProxy proxy;
-    private static final byte ALL = 0;
-    private static final byte ADD = 1;
-    private static final byte DEL = 2;
-    private static final byte UPDATE = 3;
 
     FMLClientHandler(ClientProxy proxy) {
         this.proxy = proxy;
@@ -46,7 +41,7 @@ public class FMLClientHandler {
 
     private void handlePacket(ByteBuf buf) {
         byte ch = buf.readByte();
-        if (ch == ADD) {
+        if (ch == CommonProxy.ADD) {
             byte dim = buf.readByte();
             int id = buf.readInt();
             int x1 = buf.readInt();
@@ -58,11 +53,13 @@ public class FMLClientHandler {
             float light = buf.readFloat();
             Area area = new Area(id, x1, y1, z1, x2, y2, z2, light);
             proxy.getDimSet(dim).add(area);
-        } else if (ch == DEL) {
+        } else if (ch == CommonProxy.DEL) {
             byte dim = buf.readByte();
             int id = buf.readInt();
             proxy.getDimSet(dim).removeIf(area -> area.id == id);
-        } else if (ch == UPDATE) {
+        } else if (ch == CommonProxy.SPEED) {
+            proxy.setSpeed(buf.readFloat());
+        } else if (ch == CommonProxy.UPDATE) {
             byte dim = buf.readByte();
             int id = buf.readInt();
             float light = buf.readFloat();
@@ -72,24 +69,26 @@ public class FMLClientHandler {
         }
     }
 
+/*
     @SubscribeEvent
     public void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        proxy.resetLight(false);
+        proxy.reset();
     }
 
     @cpw.mods.fml.common.eventhandler.SubscribeEvent
     public void onLogout(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent event) {
-        proxy.resetLight(false);
+        proxy.reset();
     }
+*/
 
     @SubscribeEvent
     public void onLogout(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-        proxy.resetLight(false);
+        proxy.reset();
     }
 
     @cpw.mods.fml.common.eventhandler.SubscribeEvent
     public void onLogout(cpw.mods.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
-        proxy.resetLight(false);
+        proxy.reset();
     }
 
 }

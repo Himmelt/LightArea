@@ -87,6 +87,21 @@ public class LightCommand extends IICommand implements ICommand {
                 proxy.commandTool(player);
             }
         });
+        addSub(new IICommand(true, "speed") {
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                if (args.notEmpty()) {
+                    try {
+                        proxy.setSpeed(Float.valueOf(args.first()));
+                        proxy.sendChatTranslation(player, "speed.set", proxy.speed);
+                        if (player.field_71133_b.isDedicatedServer()) {
+                            proxy.sendSpeedToAll();
+                        }
+                    } catch (Throwable ignored) {
+                        proxy.sendChatTranslation(player, "invalid.float");
+                    }
+                } else proxy.sendChatTranslation(player, "speed.get", proxy.speed);
+            }
+        });
     }
 
     public String func_71517_b() {

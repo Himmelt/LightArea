@@ -10,6 +10,9 @@ info.notInArea=You are not in any area
 tool.set=Set select tool to : %s
 tool.get=Current select tool is : %s
 
+speed.set=Set light change speed to : %f/tick
+speed.get=Current light change speed is : %f/tick
+
 invalid.float=Invalid float arg
 notSelect=Please select start pos and end pos first
 create.conflict=Selected area conflicts with existed areas

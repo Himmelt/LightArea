@@ -2,6 +2,7 @@ package org.soraworld.lightarea;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -34,19 +35,17 @@ import java.util.List;
 
 public class CommonProxy {
 
+    protected Item tool;
+    protected float speed;
     protected int AREA_ID = 0;
     protected Configuration config;
-    protected Item tool;
+
     protected final HashMap<Integer, HashSet<Area>> areas = new HashMap<>();
     protected final HashMap<EntityPlayer, Vec3i> pos1s = new HashMap<>();
     protected final HashMap<EntityPlayer, Vec3i> pos2s = new HashMap<>();
     protected final FMLEventChannel channel_new = NetworkRegistry.INSTANCE.newEventDrivenChannel("light");
     protected final cpw.mods.fml.common.network.FMLEventChannel channel_old = cpw.mods.fml.common.network.NetworkRegistry.INSTANCE.newEventDrivenChannel("light");
 
-    private static final byte ALL = 0;
-    private static final byte ADD = 1;
-    private static final byte DEL = 2;
-    private static final byte UPDATE = 3;
     private static final byte[] CUBOID = "s|cuboid".getBytes(StandardCharsets.UTF_8);
     private static final String WECUI_CHANNEL = "WECUI";
 
@@ -55,6 +54,10 @@ public class CommonProxy {
     private static final Method getObjectFromName;
     private static final Method getNameFromObject;
 
+    public static final byte ADD = 1;
+    public static final byte DEL = 2;
+    public static final byte SPEED = 3;
+    public static final byte UPDATE = 4;
     public static final boolean v_1_7;
     public static final boolean v_1_8;
     public static final boolean v_1_9;
@@ -167,25 +170,21 @@ public class CommonProxy {
     }
 
     public void onPreInit(FMLPreInitializationEvent event) {
-        config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
         if (v_1_8) FMLCommonHandler.instance().bus().register(new FMLHandler(this));
         else regEventBus(new FMLHandler(this));
     }
 
     public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
-        config = new Configuration(event.getSuggestedConfigurationFile(), LightArea.MOD_VERSION);
         cpw.mods.fml.common.FMLCommonHandler.instance().bus().register(new FMLHandler(this));
     }
 
     /* 1.12.2 */
     public void onInit(FMLInitializationEvent event) {
-        load();
         regEventBus(new EventBusHandler(this));
     }
 
     /* 1.7.10 */
     public void onInit(cpw.mods.fml.common.event.FMLInitializationEvent event) {
-        load();
         regEventBus(new EventBusHandler(this));
     }
 
@@ -201,7 +200,9 @@ public class CommonProxy {
         config.load();
         String toolName = config.getString("tool", "general", "wooden_axe", "Select Tool");
         setSelectTool(toolName);
+        speed = config.getFloat("speed", "general", 1.0F, 0.0F, 30.0F, "Light change speed (float/tick)");
         String[] strings = config.getStringList("areas", "general", new String[]{}, "Light Areas");
+        areas.clear();
         if (strings != null) {
             for (String str : strings) {
                 String[] ss = str.split(",");
@@ -214,6 +215,15 @@ public class CommonProxy {
                 }
             }
         }
+    }
+
+    public void save() {
+        config.get("general", "tool", "wooden_axe", "Select Tool").set(getToolName());
+        config.get("general", "speed", 1.0F, "Light change speed (float/tick)").set(speed);
+        List<String> list = new ArrayList<>();
+        areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
+        config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));
+        config.save();
     }
 
     private void setSelectTool(String toolName) {
@@ -315,16 +325,12 @@ public class CommonProxy {
         } else sendChatTranslation(player, "notSelect");
     }
 
-    public void save() {
-        config.get("general", "tool", "wooden_axe", "Select Tool").set(getToolName());
-        List<String> list = new ArrayList<>();
-        areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
-        config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));
-        config.save();
-    }
-
     public void loginSend(EntityPlayerMP player) {
         if (player.field_71133_b.isDedicatedServer()) {
+            ByteBuf buf = Unpooled.buffer();
+            buf.writeByte(SPEED);
+            buf.writeFloat(speed);
+            chSendTo(buf, player);
             areas.forEach((dim, areas) -> areas.forEach(area -> sendAdd(player, dim, area)));
         }
     }
@@ -429,11 +435,11 @@ public class CommonProxy {
         return player.func_70003_b(4, "op");
     }
 
-    public void sendChatTranslation(EntityPlayer player, String key, Object... args) {
+    public void sendChatTranslation(ICommandSender sender, String key, Object... args) {
         if (v_1_7 || v_1_8) {
-            player.func_145747_a(new ChatComponentTranslation(key, args));
+            sender.func_145747_a(new ChatComponentTranslation(key, args));
         } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
-            player.func_145747_a(new TextComponentTranslation(key, args));
+            sender.func_145747_a(new TextComponentTranslation(key, args));
         }
     }
 
@@ -474,6 +480,29 @@ public class CommonProxy {
                 sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
             }
         }
+    }
+
+    public void setSpeed(float speed) {
+        if (speed < 0) speed = 0;
+        this.speed = speed;
+        save();
+    }
+
+    public void sendSpeedToAll() {
+        ByteBuf buf = Unpooled.buffer();
+        buf.writeByte(SPEED);
+        buf.writeFloat(speed);
+        chSendToAll(buf);
+    }
+
+    public void reset() {
+        tool = Items.field_151053_p;
+        speed = 1.0F;
+        AREA_ID = 0;
+        config = null;
+        areas.clear();
+        pos1s.clear();
+        pos2s.clear();
     }
 
 }

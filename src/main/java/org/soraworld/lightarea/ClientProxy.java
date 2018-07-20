@@ -41,22 +41,33 @@ public class ClientProxy extends CommonProxy {
 
     public void setLightLevel(EntityPlayer sp) {
         if (mc.currentScreen instanceof GuiVideoSettings) return;
+        float gamma = mc.gameSettings.gammaSetting;
         HashSet<Area> set = areas.get(sp.field_71093_bK);
         if (set != null) {
             Vec3d pos = new Vec3d(sp);
             for (Area area : set) {
                 if (area.contains(pos)) {
-                    mc.gameSettings.gammaSetting = area.light;
+                    if (gamma < area.light - speed) gamma += speed;
+                    else if (gamma > area.light + speed) gamma -= speed;
+                    else gamma = area.light;
+                    mc.gameSettings.gammaSetting = gamma;
                     return;
                 }
             }
         }
-        mc.gameSettings.gammaSetting = originalLight;
+        if (gamma < originalLight - speed) gamma += speed;
+        else if (gamma > originalLight + speed) gamma -= speed;
+        else gamma = originalLight;
+        mc.gameSettings.gammaSetting = gamma;
     }
 
-    public void resetLight(boolean changeOptions) {
-        if (changeOptions) originalLight = mc.gameSettings.gammaSetting;
-        else mc.gameSettings.gammaSetting = originalLight;
+    public void saveLight() {
+        originalLight = mc.gameSettings.gammaSetting;
+    }
+
+    public void reset() {
+        super.reset();
+        mc.gameSettings.gammaSetting = originalLight;
     }
 
 }
