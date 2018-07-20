@@ -72,24 +72,31 @@ public class CommonProxy {
             if (version.contains("1.7")) {
                 v1_7 = true;
                 v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                System.out.println("MinecraftForge 1.7");
             } else if (version.contains("1.8")) {
                 v1_8 = true;
                 v1_7 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                System.out.println("MinecraftForge 1.8");
             } else if (version.contains("1.9")) {
                 v1_9 = true;
                 v1_7 = v1_8 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                System.out.println("MinecraftForge 1.9");
             } else if (version.contains("1.10")) {
                 v1_10 = true;
                 v1_7 = v1_8 = v1_9 = v1_11 = v1_12 = v1_13 = false;
+                System.out.println("MinecraftForge 1.10");
             } else if (version.contains("1.11")) {
                 v1_11 = true;
                 v1_7 = v1_8 = v1_9 = v1_10 = v1_12 = v1_13 = false;
+                System.out.println("MinecraftForge 1.11");
             } else if (version.contains("1.12")) {
                 v1_12 = true;
                 v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_13 = false;
+                System.out.println("MinecraftForge 1.12");
             } else if (version.contains("1.13")) {
                 v1_13 = true;
                 v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = false;
+                System.out.println("MinecraftForge 1.13");
             }
         } catch (Throwable ignored) {
         }
