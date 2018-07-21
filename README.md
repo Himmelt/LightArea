@@ -8,6 +8,8 @@
 
 如果将Gamma值设置得较低（小于1）还可以实现将指定区域的夜色变得更黑暗的效果。
 
+**注意，Gamma值带来的亮度只是画面效果，并不会改变实际亮度，即不会改变阳光传感器检测到的值。**
+
 ### 特性
 1. 手持选区工具(默认木斧)左键选择起点，右键选择终点。
 2. 在安装有WE-CUI的客户端，可以像WE一样显示选区边界。
@@ -37,6 +39,8 @@ By increase the gamma value, we can light the buildings' inside without luminous
 and erase all the dark corners of the buildings.
 
 If we set the gamma lower than 1.0, we can make the area darker.
+
+**Notice, The light of gamma is just video effect, the real light(value of Daylight Sensor) is not changed.**
 
 ### Features
 1. Hold the select tool(default WoodenAxe), left click to set the start point, 
