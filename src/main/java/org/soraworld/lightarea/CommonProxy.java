@@ -197,33 +197,37 @@ public class CommonProxy {
     }
 
     public void load() {
-        config.load();
-        String toolName = config.getString("tool", "general", "wooden_axe", "Select Tool");
-        setSelectTool(toolName);
-        speed = config.getFloat("speed", "general", 1.0F, 0.0F, 30.0F, "Light change speed (float/tick)");
-        String[] strings = config.getStringList("areas", "general", new String[]{}, "Light Areas");
-        areas.clear();
-        if (strings != null) {
-            for (String str : strings) {
-                String[] ss = str.split(",");
-                if (ss.length == 8) {
-                    getDimSet(Integer.valueOf(ss[0])).add(new Area(AREA_ID++,
-                            Integer.valueOf(ss[1]), Integer.valueOf(ss[2]), Integer.valueOf(ss[3]),
-                            Integer.valueOf(ss[4]), Integer.valueOf(ss[5]), Integer.valueOf(ss[6]),
-                            Float.valueOf(ss[7])
-                    ));
+        if (config != null) {
+            config.load();
+            String toolName = config.getString("tool", "general", "wooden_axe", "Select Tool");
+            setSelectTool(toolName);
+            speed = config.getFloat("speed", "general", 1.0F, 0.0F, 30.0F, "Light change speed (float/tick)");
+            String[] strings = config.getStringList("areas", "general", new String[]{}, "Light Areas");
+            areas.clear();
+            if (strings != null) {
+                for (String str : strings) {
+                    String[] ss = str.split(",");
+                    if (ss.length == 8) {
+                        getDimSet(Integer.valueOf(ss[0])).add(new Area(AREA_ID++,
+                                Integer.valueOf(ss[1]), Integer.valueOf(ss[2]), Integer.valueOf(ss[3]),
+                                Integer.valueOf(ss[4]), Integer.valueOf(ss[5]), Integer.valueOf(ss[6]),
+                                Float.valueOf(ss[7])
+                        ));
+                    }
                 }
             }
         }
     }
 
     public void save() {
-        config.get("general", "tool", "wooden_axe", "Select Tool").set(getToolName());
-        config.get("general", "speed", 1.0F, "Light change speed (float/tick)").set(speed);
-        List<String> list = new ArrayList<>();
-        areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
-        config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));
-        config.save();
+        if (config != null) {
+            config.get("general", "tool", "wooden_axe", "Select Tool").set(getToolName());
+            config.get("general", "speed", 1.0F, "Light change speed (float/tick)").set(speed);
+            List<String> list = new ArrayList<>();
+            areas.forEach((dim, areas) -> areas.forEach(area -> list.add("" + dim + ',' + area)));
+            config.get("general", "areas", new String[]{}, "Light Areas").set(list.toArray(new String[]{}));
+            config.save();
+        }
     }
 
     private void setSelectTool(String toolName) {

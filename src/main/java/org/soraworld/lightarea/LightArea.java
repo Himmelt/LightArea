@@ -65,7 +65,6 @@ public class LightArea {
         if (event.getServer().getEntityWorld() instanceof WorldServer) {
             WorldServer world = (WorldServer) event.getServer().getEntityWorld();
             File conf = new File(world.getChunkSaveLocation(), MOD_ID + ".cfg");
-            System.out.println("FMLServerStartingEvent:" + world);
             proxy.config = new Configuration(conf, MOD_VERSION);
             proxy.load();
         }
@@ -77,7 +76,6 @@ public class LightArea {
         if (event.getServer().getEntityWorld() instanceof WorldServer) {
             WorldServer world = (WorldServer) event.getServer().getEntityWorld();
             File conf = new File(world.getChunkSaveLocation(), MOD_ID + ".cfg");
-            System.out.println("FMLServerStartingEvent:" + world);
             proxy.config = new Configuration(conf, MOD_VERSION);
             proxy.load();
         }
@@ -85,13 +83,11 @@ public class LightArea {
 
     @Mod.EventHandler
     public void onServerStopping(FMLServerStoppingEvent event) {
-        System.out.println("FMLServerStoppingEvent:" + event);
         proxy.reset();
     }
 
     @cpw.mods.fml.common.Mod.EventHandler
     public void onServerStopping(cpw.mods.fml.common.event.FMLServerStoppingEvent event) {
-        System.out.println("FMLServerStoppingEvent:" + event);
         proxy.reset();
     }
 
