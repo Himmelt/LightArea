@@ -55,6 +55,7 @@ public class ClientProxy extends CommonProxy {
                 }
             }
         }
+        if (originalLight > 1) originalLight = 1.0F;
         if (gamma < originalLight - speed) gamma += speed;
         else if (gamma > originalLight + speed) gamma -= speed;
         else gamma = originalLight;
