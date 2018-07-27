@@ -56,6 +56,34 @@ public class LightCommand extends IICommand implements ICommand {
                 }
             }
         });
+        addSub(new IICommand(true, "list") {
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                if (args.empty()) {
+                    proxy.showList(player, player.field_71093_bK, false);
+                    return;
+                }
+                if (args.first().equals("all")) {
+                    proxy.showList(player, 0, true);
+                    return;
+                }
+                try {
+                    proxy.showList(player, Integer.valueOf(args.first()), false);
+                } catch (Throwable ignored) {
+                    proxy.showList(player, proxy.getDimFromName(player.field_71133_b, args.first()), false);
+                }
+            }
+        });
+        addSub(new IICommand(true, "tp") {
+            public void execute(EntityPlayerMP player, CommandArgs args) {
+                if (args.notEmpty()) {
+                    try {
+                        proxy.tpToAreaById(player, Integer.valueOf(args.first()));
+                    } catch (Throwable e) {
+                        proxy.sendChatTranslation(player, "invalid.int");
+                    }
+                } else proxy.sendChatTranslation(player, "empty.args");
+            }
+        });
         addSub(new IICommand(true, "level") {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {

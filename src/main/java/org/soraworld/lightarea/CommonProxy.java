@@ -12,9 +12,13 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
 import net.minecraft.network.play.server.SPacketCustomPayload;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.*;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -28,10 +32,7 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class CommonProxy {
 
@@ -455,6 +456,20 @@ public class CommonProxy {
         }
     }
 
+    public void sendAreaList(EntityPlayerMP player, Area area) {
+        if (v_1_7 || v_1_8) {
+            ChatStyle style = new ChatStyle().func_150238_a(EnumChatFormatting.GREEN).func_150227_a(true)
+                    .func_150241_a(new net.minecraft.event.ClickEvent(net.minecraft.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + area.id));
+            IChatComponent click = new ChatComponentTranslation("text.click").func_150255_a(style);
+            player.func_145747_a(new ChatComponentTranslation("info.list", area.id, area.toString(), click));
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+            Style style = new Style().setColor(TextFormatting.GREEN).setBold(true)
+                    .setClickEvent(new net.minecraft.util.text.event.ClickEvent(net.minecraft.util.text.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + area.id));
+            ITextComponent click = new TextComponentTranslation("text.click").setStyle(style);
+            player.func_145747_a(new TextComponentTranslation("info.list", area.id, area.toString(), click));
+        }
+    }
+
     public void commandTool(EntityPlayerMP player) {
         if (v_1_7 || v_1_8) {
             ItemStack stack = player.func_70694_bm();
@@ -507,6 +522,44 @@ public class CommonProxy {
         areas.clear();
         pos1s.clear();
         pos2s.clear();
+    }
+
+    public void showList(EntityPlayerMP player, int dim, boolean all) {
+        if (all) {
+            areas.forEach((dimId, dimAreas) -> dimAreas.forEach(area -> sendAreaList(player, area)));
+        } else {
+            getDimSet(dim).forEach(area -> sendAreaList(player, area));
+        }
+    }
+
+    public int getDimFromName(MinecraftServer server, String worldName) {
+        for (World world : server.worlds) {
+            if (world.getWorldInfo().getWorldName().equals(worldName)) {
+                return world.provider.getDimension();
+            }
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    public void tpToAreaById(EntityPlayerMP player, int id) {
+        for (Map.Entry<Integer, HashSet<Area>> entry : areas.entrySet()) {
+            for (Area area : entry.getValue()) {
+                if (area.id == id) {
+                    int dim = entry.getKey();
+                    if (player.field_71093_bK != dim) {
+                        if (v_1_7 || v_1_8) {
+                            player.func_71027_c(dim);
+                        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+                            player.func_184204_a(dim);
+                        }
+                    }
+                    area.center(player);
+                    sendChatTranslation(player, "areaTpSuccess");
+                    return;
+                }
+            }
+        }
+        sendChatTranslation(player, "areaIdNotFound");
     }
 
 }

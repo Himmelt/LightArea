@@ -14,5 +14,13 @@ speed.set=亮度变化速度设置为 : %f/tick
 speed.get=当前亮度变化速度为 : %f/tick
 
 invalid.float=参数不是有效的小数
+invalid.int=参数不是有效的整数
+empty.args=参数为空
 notSelect=请先创建一个选区
 create.conflict=选区和已有区域冲突，请重新选择
+
+text.click=点击传送
+info.list=id:%d;坐标:%s; %s
+
+areaTpSuccess=已传送至目标区域中心
+areaIdNotFound=不存在对应id的区域

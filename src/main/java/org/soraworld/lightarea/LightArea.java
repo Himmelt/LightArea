@@ -27,7 +27,7 @@ public class LightArea {
 
     public static final String MOD_ID = "lightarea";
     public static final String MOD_NAME = "LightArea";
-    public static final String MOD_VERSION = "1.0.7";
+    public static final String MOD_VERSION = "1.0.8";
 
     @cpw.mods.fml.common.SidedProxy(
             clientSide = "org.soraworld.lightarea.ClientProxy",

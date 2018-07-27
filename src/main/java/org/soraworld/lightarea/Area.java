@@ -1,5 +1,7 @@
 package org.soraworld.lightarea;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+
 public class Area {
 
     public final int id;
@@ -69,6 +71,10 @@ public class Area {
 
     public Vec3i vec2() {
         return new Vec3i(x2, y2, z2);
+    }
+
+    public void center(EntityPlayerMP player) {
+        player.func_70634_a((x1 + x2) / 2.0, (y1 + y2) / 2.0, (z1 + z2) / 2.0);
     }
 
 }

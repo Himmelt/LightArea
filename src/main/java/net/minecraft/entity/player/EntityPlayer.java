@@ -23,7 +23,28 @@ public abstract class EntityPlayer extends Entity implements ICommandSender {
     public abstract ItemStack func_70694_bm();
 
     /*
-     * 1.12.2 - getHeldItemMainhand */
+     * 1.12.2 - getHeldItemMainhand
+     * */
     public abstract ItemStack func_184614_ca();
+
+    /*
+     * 1.7.10-1.12.2 - setPosition
+     * */
+    public abstract void func_70107_b(double x, double y, double z);
+
+    /*
+     * 1.7.10-1.12.2 - setPositionAndUpdate
+     * */
+    public abstract void func_70634_a(double x, double y, double z);
+
+    /*
+     * 1.7-1.8 - travelToDimension
+     * */
+    public abstract void func_71027_c(int dimension);
+
+    /*
+     * 1.9-1.12 - changeDimension
+     * */
+    public abstract Entity func_184204_a(int dimension);
 
 }

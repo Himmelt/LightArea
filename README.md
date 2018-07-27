@@ -23,9 +23,32 @@
 /light create [light]   根据选区创建区域，可选参数[light]为亮度级别[-15.0 - 15.0]
 /light delete           删除玩家当前所在的区域
 /light info             显示玩家当前所在区域的信息，如果客户端安装有WE-CUI，则会显示范围
+/light list [dim|all]   列出(某世界的)所有区域，没有参数时为玩家所在世界，参数为all时为全部世界，参数为整数时，为对应维度的世界
+/light tp <id>          传送到指定id的区域的中心位置
 /light level [light]    查看/设置当前区域的亮度
 /light tool             手持为空，查看选区工具；手持非空，设置选区工具为当前手持物
 /light speed [speed]    查看/设置亮度变化速度（变化值/tick）
+```
+
+### 更新日志
+```yaml
+1.0.8:
+  - 添加 list 指令，列出区域列表，并可以通过点击文字传送
+  - 添加 tp 指令，可以传送到指定id区域的中心
+  - 修复 原始亮度，原始亮度最大值限制为1.0
+1.0.6:
+  - 添加 speed 指令，添加亮度变化速度配置项和对应功能
+  - 调整 配置文件存放位置调整为存档目录
+1.0.5:
+  - 添加 1.8|1.8.8|1.8.9|1.9|1.9.4 支持
+  - 修复 1.8 事件BUG
+  - 添加 区域冲突提示，不允许区域之间有重叠部分
+1.0.3:
+  - 更新 对 1.7.10|1.10.x|1.11.x|1.12.x 支持
+1.0.1:
+  - 调整 亮度范围调整为 [-15.0 - 15.0]
+1.0.0:
+  - 添加 WE_CUI 支持
 ```
  
 # LightArea
@@ -56,6 +79,9 @@ right click to set the end point.
 /light create [light]   create area by current selected area, the optional arg is light (range: -15.0 - 15.0)
 /light delete           delete the area at player's pos
 /light info             show the info of the area at player's pos
+/light list [dim|all]   list the world's areas, empty args using player's world, arg "all" will list all world's areas, 
+int arg using the world with the dimension
+/light tp <id>          teleport to area's center of the id
 /light level [light]    get/set the current area's light
 /light tool             hand empty, show select tool; hand item,set select tool to the item in hand
 /light speed [speed]    get/set light change speed (float/tick)
