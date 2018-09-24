@@ -93,8 +93,8 @@ public class LightCommand extends IICommand implements ICommand {
                         try {
                             float old = area.light;
                             area.light = Float.valueOf(args.first());
-                            if (area.light < -15.0F) area.light = -15.0F;
-                            if (area.light > 15.0F) area.light = 15.0F;
+                            //if (area.light < -15.0F) area.light = -15.0F;
+                            //if (area.light > 15.0F) area.light = 15.0F;
                             if (old != area.light) {
                                 if (player.field_71133_b.isDedicatedServer()) {
                                     proxy.sendUpdateToAll(player.dimension, area);
