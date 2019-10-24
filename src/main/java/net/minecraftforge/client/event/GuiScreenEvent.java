@@ -2,6 +2,9 @@ package net.minecraftforge.client.event;
 
 import net.minecraft.client.gui.GuiScreen;
 
+/**
+ * @author Himmelt
+ */
 public class GuiScreenEvent {
 
     public GuiScreen gui;
@@ -14,5 +17,4 @@ public class GuiScreenEvent {
         public static class Post extends DrawScreenEvent {
         }
     }
-
 }

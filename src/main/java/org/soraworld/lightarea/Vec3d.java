@@ -5,6 +5,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 
 import java.lang.reflect.Field;
 
+/**
+ * @author Himmelt
+ */
 public class Vec3d {
 
     public final double x, y, z;
@@ -37,13 +40,16 @@ public class Vec3d {
                     tmpY = ((AxisAlignedBB) box).field_72338_b;
                 } else if (box instanceof net.minecraft.util.AxisAlignedBB) {
                     tmpY = ((net.minecraft.util.AxisAlignedBB) box).field_72338_b;
-                } else tmpY = entity.posY;
+                } else {
+                    tmpY = entity.posY;
+                }
             } catch (Throwable ignored) {
                 tmpY = entity.posY;
             }
-        } else tmpY = entity.posY;
+        } else {
+            tmpY = entity.posY;
+        }
         this.y = tmpY;
         this.z = entity.posZ;
     }
-
 }

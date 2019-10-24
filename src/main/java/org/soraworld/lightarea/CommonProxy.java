@@ -145,9 +145,15 @@ public class CommonProxy {
                 Method[] methods = regOld.getDeclaredMethods();
                 if (methods != null) {
                     for (Method method : methods) {
-                        if (method.getName().equals("func_82594_a")) getObject = method;
-                        if (method.getName().equals("func_148750_c")) getName = method;
-                        if (method.getName().equals("func_177774_c")) getName = method;
+                        if (method.getName().equals("func_82594_a")) {
+                            getObject = method;
+                        }
+                        if (method.getName().equals("func_148750_c")) {
+                            getName = method;
+                        }
+                        if (method.getName().equals("func_177774_c")) {
+                            getName = method;
+                        }
                     }
                 }
             } else if (regNew != null) {
@@ -156,8 +162,12 @@ public class CommonProxy {
                 Method[] methods = regNew.getDeclaredMethods();
                 if (methods != null) {
                     for (Method method : methods) {
-                        if (method.getName().equals("func_82594_a")) getObject = method;
-                        if (method.getName().equals("func_177774_c")) getName = method;
+                        if (method.getName().equals("func_82594_a")) {
+                            getObject = method;
+                        }
+                        if (method.getName().equals("func_177774_c")) {
+                            getName = method;
+                        }
                     }
                 }
             }
@@ -171,8 +181,11 @@ public class CommonProxy {
     }
 
     public void onPreInit(FMLPreInitializationEvent event) {
-        if (v_1_8) FMLCommonHandler.instance().bus().register(new FMLHandler(this));
-        else regEventBus(new FMLHandler(this));
+        if (v_1_8) {
+            FMLCommonHandler.instance().bus().register(new FMLHandler(this));
+        } else {
+            regEventBus(new FMLHandler(this));
+        }
     }
 
     public void onPreInit(cpw.mods.fml.common.event.FMLPreInitializationEvent event) {
@@ -209,10 +222,10 @@ public class CommonProxy {
                 for (String str : strings) {
                     String[] ss = str.split(",");
                     if (ss.length == 8) {
-                        getDimSet(Integer.valueOf(ss[0])).add(new Area(AREA_ID++,
-                                Integer.valueOf(ss[1]), Integer.valueOf(ss[2]), Integer.valueOf(ss[3]),
-                                Integer.valueOf(ss[4]), Integer.valueOf(ss[5]), Integer.valueOf(ss[6]),
-                                Float.valueOf(ss[7])
+                        getDimSet(Integer.parseInt(ss[0])).add(new Area(AREA_ID++,
+                                Integer.parseInt(ss[1]), Integer.parseInt(ss[2]), Integer.parseInt(ss[3]),
+                                Integer.parseInt(ss[4]), Integer.parseInt(ss[5]), Integer.parseInt(ss[6]),
+                                Float.parseFloat(ss[7])
                         ));
                     }
                 }
@@ -240,20 +253,29 @@ public class CommonProxy {
                 } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
                     object = getObjectFromName.invoke(REGISTRY, new ResourceLocation(toolName));
                 }
-                if (object instanceof Item) tool = (Item) object;
-                else tool = Items.field_151053_p;
+                if (object instanceof Item) {
+                    tool = (Item) object;
+                } else {
+                    tool = Items.field_151053_p;
+                }
             } catch (Throwable ignored) {
                 tool = Items.field_151053_p;
             }
-        } else tool = Items.field_151053_p;
+        } else {
+            tool = Items.field_151053_p;
+        }
     }
 
     private String getToolName() {
         if (REGISTRY != null && getNameFromObject != null) {
             try {
                 Object object = getNameFromObject.invoke(REGISTRY, tool);
-                if (object instanceof String) return (String) object;
-                if (object instanceof ResourceLocation) return object.toString();
+                if (object instanceof String) {
+                    return (String) object;
+                }
+                if (object instanceof ResourceLocation) {
+                    return object.toString();
+                }
             } catch (Throwable ignored) {
             }
         }
@@ -265,24 +287,32 @@ public class CommonProxy {
     }
 
     public Vec3i getPos1(EntityPlayer player) {
-        if (pos1s.containsKey(player)) return pos1s.get(player);
+        if (pos1s.containsKey(player)) {
+            return pos1s.get(player);
+        }
         return null;
     }
 
     public Vec3i getPos2(EntityPlayer player) {
-        if (pos2s.containsKey(player)) return pos2s.get(player);
+        if (pos2s.containsKey(player)) {
+            return pos2s.get(player);
+        }
         return null;
     }
 
     public void setPos1(EntityPlayerMP player, Vec3i pos1, boolean msg) {
         pos1s.put(player, pos1);
-        if (msg) sendChatTranslation(player, "set.pos1", pos1);
+        if (msg) {
+            sendChatTranslation(player, "set.pos1", pos1);
+        }
         updateCUI(player);
     }
 
     public void setPos2(EntityPlayerMP player, Vec3i pos2, boolean msg) {
         pos2s.put(player, pos2);
-        if (msg) sendChatTranslation(player, "set.pos2", pos2);
+        if (msg) {
+            sendChatTranslation(player, "set.pos2", pos2);
+        }
         updateCUI(player);
     }
 
@@ -290,9 +320,13 @@ public class CommonProxy {
         Vec3i pos1 = pos1s.get(player);
         Vec3i pos2 = pos2s.get(player);
         if (pos1 == null) {
-            if (pos2 == null) return;
+            if (pos2 == null) {
+                return;
+            }
             pos1 = pos2;
-        } else if (pos2 == null) pos2 = pos1;
+        } else if (pos2 == null) {
+            pos2 = pos1;
+        }
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
         if (v_1_7) {
@@ -327,7 +361,9 @@ public class CommonProxy {
                 }
                 save();
             }
-        } else sendChatTranslation(player, "notSelect");
+        } else {
+            sendChatTranslation(player, "notSelect");
+        }
     }
 
     public void loginSend(EntityPlayerMP player) {
@@ -405,28 +441,36 @@ public class CommonProxy {
 
     public void deleteArea(EntityPlayerMP player) {
         HashSet<Area> set = areas.get(player.field_71093_bK);
-        if (set != null) set.removeIf(area -> {
-            if (area.contains(new Vec3d(player))) {
-                if (player.field_71133_b.isDedicatedServer()) {
-                    sendDelToAll(player.field_71093_bK, area.id);
+        if (set != null) {
+            set.removeIf(area -> {
+                if (area.contains(new Vec3d(player))) {
+                    if (player.field_71133_b.isDedicatedServer()) {
+                        sendDelToAll(player.field_71093_bK, area.id);
+                    }
+                    save();
+                    return true;
                 }
-                save();
-                return true;
-            }
-            return false;
-        });
+                return false;
+            });
+        }
     }
 
     public Area findAreaAt(EntityPlayerMP player) {
         HashSet<Area> set = getDimSet(player.field_71093_bK);
-        for (Area area : set) if (area.contains(new Vec3d(player))) return area;
+        for (Area area : set) {
+            if (area.contains(new Vec3d(player))) {
+                return area;
+            }
+        }
         return null;
     }
 
     public boolean conflict(int dim, Area intent) {
         HashSet<Area> set = getDimSet(dim);
         for (Area area : set) {
-            if (intent.conflict(area)) return true;
+            if (intent.conflict(area)) {
+                return true;
+            }
         }
         return false;
     }
@@ -437,7 +481,7 @@ public class CommonProxy {
     }
 
     public boolean hasPerm(EntityPlayer player) {
-        return player.func_70003_b(4, "op");
+        return player.func_70003_b(2, "gamemode");
     }
 
     public void sendChatTranslation(ICommandSender sender, String key, Object... args) {
@@ -502,7 +546,9 @@ public class CommonProxy {
     }
 
     public void setSpeed(float speed) {
-        if (speed < 0) speed = 0;
+        if (speed < 0) {
+            speed = 0;
+        }
         this.speed = speed;
         save();
     }
@@ -561,5 +607,4 @@ public class CommonProxy {
         }
         sendChatTranslation(player, "areaIdNotFound");
     }
-
 }

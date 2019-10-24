@@ -4,6 +4,9 @@ import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * @author Himmelt
+ */
 public class EventBusClientHandler {
 
     private final ClientProxy proxy;
@@ -15,7 +18,9 @@ public class EventBusClientHandler {
     @SubscribeEvent
     public void onVideoSetting_new(GuiScreenEvent.DrawScreenEvent.Post event) {
         if (CommonProxy.v_1_8) {
-            if (event.gui instanceof GuiVideoSettings) proxy.saveLight();
+            if (event.gui instanceof GuiVideoSettings) {
+                proxy.saveLight();
+            }
         } else if (event.getGui() instanceof GuiVideoSettings) {
             proxy.saveLight();
         }

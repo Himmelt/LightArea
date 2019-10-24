@@ -1,5 +1,8 @@
 package org.soraworld.lightarea;
 
+/**
+ * @author Himmelt
+ */
 public final class CommandArgs {
 
     private final String[] args;
@@ -25,12 +28,16 @@ public final class CommandArgs {
     }
 
     public CommandArgs next() {
-        if (current < length) current++;
+        if (current < length) {
+            current++;
+        }
         return this;
     }
 
     public CommandArgs revert() {
-        if (current > 0) current--;
+        if (current > 0) {
+            current--;
+        }
         return this;
     }
 
@@ -39,13 +46,16 @@ public final class CommandArgs {
     }
 
     public String first() {
-        if (current >= length) return "";
+        if (current >= length) {
+            return "";
+        }
         return args[current];
     }
 
     public String get(int index) {
-        if (current + index >= length) return "";
+        if (current + index >= length) {
+            return "";
+        }
         return args[current + index];
     }
-
 }

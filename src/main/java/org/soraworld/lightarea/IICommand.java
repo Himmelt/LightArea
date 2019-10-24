@@ -6,6 +6,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.*;
 
+/**
+ * @author Himmelt
+ */
 public abstract class IICommand {
 
     private final boolean onlyPlayer;
@@ -19,15 +22,21 @@ public abstract class IICommand {
     }
 
     public void execute(ICommandSender sender, CommandArgs args) {
-        if (args.empty()) return;
+        if (args.empty()) {
+            return;
+        }
         IICommand sub = subs.get(args.first());
-        if (sub == null) return;
+        if (sub == null) {
+            return;
+        }
         args.next();
         if (sender instanceof EntityPlayerMP) {
             sub.execute((EntityPlayerMP) sender, args);
             return;
         }
-        if (!onlyPlayer) sub.execute(sender, args);
+        if (!onlyPlayer) {
+            sub.execute(sender, args);
+        }
     }
 
     public void execute(EntityPlayerMP player, CommandArgs args) {
@@ -36,7 +45,9 @@ public abstract class IICommand {
 
     public List<String> tabCompletions(CommandArgs args) {
         String first = args.first();
-        if (args.size() == 1) return getMatchList(first, subs.keySet());
+        if (args.size() == 1) {
+            return getMatchList(first, subs.keySet());
+        }
         if (subs.containsKey(first)) {
             args.next();
             return subs.get(first).tabCompletions(args);
@@ -52,9 +63,15 @@ public abstract class IICommand {
 
     public static List<String> getMatchList(String text, Collection<String> possibles) {
         ArrayList<String> list = new ArrayList<>();
-        if (text.isEmpty()) list.addAll(possibles);
-        else for (String s : possibles) if (s.startsWith(text)) list.add(s);
+        if (text.isEmpty()) {
+            list.addAll(possibles);
+        } else {
+            for (String s : possibles) {
+                if (s.startsWith(text)) {
+                    list.add(s);
+                }
+            }
+        }
         return list;
     }
-
 }

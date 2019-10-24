@@ -4,6 +4,9 @@ import net.minecraft.entity.Entity;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * @author Himmelt
+ */
 public class Vec3i {
 
     public final int x, y, z;
@@ -25,6 +28,7 @@ public class Vec3i {
         return value < (double) i ? i - 1 : i;
     }
 
+    @Override
     public String toString() {
         return "(" + x + " , " + y + " , " + z + ")";
     }
@@ -32,5 +36,4 @@ public class Vec3i {
     public byte[] cui(int pos, int size) {
         return ("p|" + (pos - 1) + '|' + x + '|' + y + '|' + z + '|' + size).getBytes(StandardCharsets.UTF_8);
     }
-
 }

@@ -11,6 +11,9 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 
 import java.io.File;
 
+/**
+ * @author Himmelt
+ */
 @cpw.mods.fml.common.Mod(
         modid = LightArea.MOD_ID,
         name = LightArea.MOD_NAME,
@@ -27,7 +30,7 @@ public class LightArea {
 
     public static final String MOD_ID = "lightarea";
     public static final String MOD_NAME = "LightArea";
-    public static final String MOD_VERSION = "1.0.8";
+    public static final String MOD_VERSION = "1.1.0";
 
     @cpw.mods.fml.common.SidedProxy(
             clientSide = "org.soraworld.lightarea.ClientProxy",
@@ -90,5 +93,4 @@ public class LightArea {
     public void onServerStopping(cpw.mods.fml.common.event.FMLServerStoppingEvent event) {
         proxy.reset();
     }
-
 }

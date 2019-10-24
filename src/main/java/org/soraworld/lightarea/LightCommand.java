@@ -8,6 +8,9 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
 
+/**
+ * @author Himmelt
+ */
 public class LightCommand extends IICommand implements ICommand {
 
     public LightCommand(CommonProxy proxy, boolean onlyPlayer, String... aliases) {
@@ -27,11 +30,14 @@ public class LightCommand extends IICommand implements ICommand {
         addSub(new IICommand(true, "create") {
             @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
-                if (args.empty()) proxy.createArea(player, 0);
-                else try {
-                    proxy.createArea(player, Float.valueOf(args.first()));
-                } catch (Throwable e) {
-                    proxy.sendChatTranslation(player, "invalid.float");
+                if (args.empty()) {
+                    proxy.createArea(player, 0);
+                } else {
+                    try {
+                        proxy.createArea(player, Float.parseFloat(args.first()));
+                    } catch (Throwable e) {
+                        proxy.sendChatTranslation(player, "invalid.float");
+                    }
                 }
             }
         });
@@ -57,31 +63,35 @@ public class LightCommand extends IICommand implements ICommand {
             }
         });
         addSub(new IICommand(true, "list") {
+            @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
                 if (args.empty()) {
                     proxy.showList(player, player.field_71093_bK, false);
                     return;
                 }
-                if (args.first().equals("all")) {
+                if ("all".equals(args.first())) {
                     proxy.showList(player, 0, true);
                     return;
                 }
                 try {
-                    proxy.showList(player, Integer.valueOf(args.first()), false);
+                    proxy.showList(player, Integer.parseInt(args.first()), false);
                 } catch (Throwable ignored) {
                     proxy.showList(player, proxy.getDimFromName(player.field_71133_b, args.first()), false);
                 }
             }
         });
         addSub(new IICommand(true, "tp") {
+            @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
                 if (args.notEmpty()) {
                     try {
-                        proxy.tpToAreaById(player, Integer.valueOf(args.first()));
+                        proxy.tpToAreaById(player, Integer.parseInt(args.first()));
                     } catch (Throwable e) {
                         proxy.sendChatTranslation(player, "invalid.int");
                     }
-                } else proxy.sendChatTranslation(player, "empty.args");
+                } else {
+                    proxy.sendChatTranslation(player, "empty.args");
+                }
             }
         });
         addSub(new IICommand(true, "level") {
@@ -92,7 +102,7 @@ public class LightCommand extends IICommand implements ICommand {
                     if (args.notEmpty()) {
                         try {
                             float old = area.light;
-                            area.light = Float.valueOf(args.first());
+                            area.light = Float.parseFloat(args.first());
                             //if (area.light < -15.0F) area.light = -15.0F;
                             //if (area.light > 15.0F) area.light = 15.0F;
                             if (old != area.light) {
@@ -105,8 +115,12 @@ public class LightCommand extends IICommand implements ICommand {
                         } catch (Throwable e) {
                             proxy.sendChatTranslation(player, "invalid.float");
                         }
-                    } else proxy.sendChatTranslation(player, "info.light", area.light);
-                } else proxy.sendChatTranslation(player, "info.notInArea");
+                    } else {
+                        proxy.sendChatTranslation(player, "info.light", area.light);
+                    }
+                } else {
+                    proxy.sendChatTranslation(player, "info.notInArea");
+                }
             }
         });
         addSub(new IICommand(true, "tool") {
@@ -116,10 +130,11 @@ public class LightCommand extends IICommand implements ICommand {
             }
         });
         addSub(new IICommand(true, "speed") {
+            @Override
             public void execute(EntityPlayerMP player, CommandArgs args) {
                 if (args.notEmpty()) {
                     try {
-                        proxy.setSpeed(Float.valueOf(args.first()));
+                        proxy.setSpeed(Float.parseFloat(args.first()));
                         proxy.sendChatTranslation(player, "speed.set", proxy.speed);
                         if (player.field_71133_b.isDedicatedServer()) {
                             proxy.sendSpeedToAll();
@@ -127,7 +142,9 @@ public class LightCommand extends IICommand implements ICommand {
                     } catch (Throwable ignored) {
                         proxy.sendChatTranslation(player, "invalid.float");
                     }
-                } else proxy.sendChatTranslation(player, "speed.get", proxy.speed);
+                } else {
+                    proxy.sendChatTranslation(player, "speed.get", proxy.speed);
+                }
             }
         });
     }
@@ -165,8 +182,11 @@ public class LightCommand extends IICommand implements ICommand {
     }
 
     public int compareTo(ICommand command) {
-        if (command instanceof LightCommand && command.func_71517_b().equals(this.func_71517_b())) return 0;
-        else return 1;
+        if (command instanceof LightCommand && command.func_71517_b().equals(this.func_71517_b())) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 
     /* 1.7.10 & 1.10.2 - getCommandName */

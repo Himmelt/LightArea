@@ -6,6 +6,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
+/**
+ * @author Himmelt
+ */
 public class FMLClientHandler {
 
     private final ClientProxy proxy;
@@ -90,5 +93,4 @@ public class FMLClientHandler {
     public void onLogout(cpw.mods.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         proxy.reset();
     }
-
 }

@@ -7,6 +7,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * @author Himmelt
+ */
 public class EventBusHandler {
 
     private final CommonProxy proxy;
@@ -71,5 +74,4 @@ public class EventBusHandler {
             }
         }
     }
-
 }

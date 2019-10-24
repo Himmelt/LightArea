@@ -2,6 +2,9 @@ package org.soraworld.lightarea;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 
+/**
+ * @author Himmelt
+ */
 public class Area {
 
     public final int id;
@@ -15,12 +18,12 @@ public class Area {
 
     public Area(int id, int x1, int y1, int z1, int x2, int y2, int z2, float light) {
         this.id = id;
-        this.x1 = x1 < x2 ? x1 : x2;
-        this.y1 = y1 < y2 ? y1 : y2;
-        this.z1 = z1 < z2 ? z1 : z2;
-        this.x2 = x1 > x2 ? x1 : x2;
-        this.y2 = y1 > y2 ? y1 : y2;
-        this.z2 = z1 > z2 ? z1 : z2;
+        this.x1 = Math.min(x1, x2);
+        this.y1 = Math.min(y1, y2);
+        this.z1 = Math.min(z1, z2);
+        this.x2 = Math.max(x1, x2);
+        this.y2 = Math.max(y1, y2);
+        this.z2 = Math.max(z1, z2);
         this.light = light;
     }
 
@@ -43,7 +46,9 @@ public class Area {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
+        if (obj == this) {
+            return true;
+        }
         if (obj instanceof Area) {
             Area area = (Area) obj;
             return area.x1 == this.x1 && area.y1 == this.y1 && area.z1 == this.z1
@@ -52,6 +57,7 @@ public class Area {
         return false;
     }
 
+    @Override
     public String toString() {
         return "" + x1 + ',' + y1 + ',' + z1 + ','
                 + x2 + ',' + y2 + ',' + z2 + ',' + light;
@@ -76,5 +82,4 @@ public class Area {
     public void center(EntityPlayerMP player) {
         player.func_70634_a((x1 + x2) / 2.0, (y1 + y2) / 2.0, (z1 + z2) / 2.0);
     }
-
 }
