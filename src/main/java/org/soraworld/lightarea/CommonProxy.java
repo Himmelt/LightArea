@@ -510,7 +510,7 @@ public class CommonProxy {
             Style style = new Style().setColor(TextFormatting.GREEN).setBold(true)
                     .setClickEvent(new net.minecraft.util.text.event.ClickEvent(net.minecraft.util.text.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + area.id));
             ITextComponent click = new TextComponentTranslation("text.click").setStyle(style);
-            player.func_145747_a(new TextComponentTranslation("info.list", area.id, area.toString(), click));
+            player.func_145747_a(new TextComponentTranslation("info.list", area.id, area.pos1(), area.pos2(), area.light, click));
         }
     }
 
