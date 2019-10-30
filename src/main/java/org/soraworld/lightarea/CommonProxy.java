@@ -505,7 +505,7 @@ public class CommonProxy {
             ChatStyle style = new ChatStyle().func_150238_a(EnumChatFormatting.GREEN).func_150227_a(true)
                     .func_150241_a(new net.minecraft.event.ClickEvent(net.minecraft.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + area.id));
             IChatComponent click = new ChatComponentTranslation("text.click").func_150255_a(style);
-            player.func_145747_a(new ChatComponentTranslation("info.list", area.id, area.toString(), click));
+            player.func_145747_a(new ChatComponentTranslation("info.list", area.id, area.pos1(), area.pos2(), area.light, click));
         } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
             Style style = new Style().setColor(TextFormatting.GREEN).setBold(true)
                     .setClickEvent(new net.minecraft.util.text.event.ClickEvent(net.minecraft.util.text.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + area.id));
