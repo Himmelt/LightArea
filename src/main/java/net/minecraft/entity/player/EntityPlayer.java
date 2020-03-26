@@ -5,6 +5,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
+/**
+ * @author Himmelt
+ */
 public abstract class EntityPlayer extends Entity implements ICommandSender {
 
     /*
@@ -46,5 +49,4 @@ public abstract class EntityPlayer extends Entity implements ICommandSender {
      * 1.9-1.12 - changeDimension
      * */
     public abstract Entity func_184204_a(int dimension);
-
 }

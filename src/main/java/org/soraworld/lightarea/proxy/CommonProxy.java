@@ -19,6 +19,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -388,7 +389,7 @@ public class CommonProxy {
         sendToAll(buf);
     }
 
-    public void createArea(EntityPlayer player, float light, float speed) {
+    public void createArea(EntityPlayerMP player, float light, float speed) {
         Vec3i pos1 = pos1s.get(player.getUniqueID());
         Vec3i pos2 = pos2s.get(player.getUniqueID());
         if (pos1 != null && pos2 != null) {
@@ -418,7 +419,7 @@ public class CommonProxy {
         }
     }
 
-    public void deleteArea(EntityPlayer player) {
+    public void deleteArea(EntityPlayerMP player) {
         Area area = findAreaAt(player);
         if (area != null) {
             lightAreas.get(player.dimension).remove(area.id);
@@ -551,11 +552,11 @@ public class CommonProxy {
         return Integer.MIN_VALUE;
     }
 
-    public void tpAreaById(EntityPlayer player, int id) {
+    public void tpAreaById(EntityPlayerMP player, int id) {
         if (player == null) {
             return;
         }
-        MinecraftServer server = player.getServer();
+        MinecraftServer server = CommonProxy.getServer(player);
         if (server == null) {
             return;
         }
@@ -591,14 +592,15 @@ public class CommonProxy {
         return null;
     }
 
-    public static boolean isDedicated(EntityPlayer player) {
-        if (player == null) {
-            return false;
+    public static boolean isDedicated(EntityPlayerMP player) {
+        MinecraftServer server = getServer(player);
+        return server != null && server.isDedicatedServer();
+    }
+
+    public static MinecraftServer getServer(EntityPlayerMP player) {
+        if (player != null && player.world instanceof WorldServer) {
+            return ((WorldServer) player.world).getMinecraftServer();
         }
-        MinecraftServer server = player.getServer();
-        if (server == null) {
-            return false;
-        }
-        return server.isDedicatedServer();
+        return null;
     }
 }
