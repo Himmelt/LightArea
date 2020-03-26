@@ -1,4 +1,4 @@
-package org.soraworld.lightarea;
+package org.soraworld.lightarea.util;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;

@@ -1,8 +1,10 @@
-package org.soraworld.lightarea;
+package org.soraworld.lightarea.handler;
 
 import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.soraworld.lightarea.proxy.ClientProxy;
+import org.soraworld.lightarea.proxy.CommonProxy;
 
 /**
  * @author Himmelt

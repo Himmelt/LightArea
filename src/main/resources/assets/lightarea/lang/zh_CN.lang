@@ -10,8 +10,7 @@ info.notInArea=[点亮区域] 当前位置不在任何区域中
 tool.set=[点亮区域] 选择工具设置为 : %s
 tool.get=[点亮区域] 当前选择工具为 : %s
 
-speed.set=[点亮区域] 亮度变化速度设置为 : %f/tick
-speed.get=[点亮区域] 当前亮度变化速度为 : %f/tick
+info.speed=[点亮区域] 当前亮度变化速度为 : %f/tick
 
 invalid.float=[点亮区域] 参数不是有效的小数
 invalid.int=[点亮区域] 参数不是有效的整数

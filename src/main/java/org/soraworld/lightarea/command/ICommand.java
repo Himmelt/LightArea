@@ -1,4 +1,4 @@
-package org.soraworld.lightarea;
+package org.soraworld.lightarea.command;
 
 
 import net.minecraft.command.ICommandSender;
@@ -9,23 +9,23 @@ import java.util.*;
 /**
  * @author Himmelt
  */
-public abstract class IICommand {
+public abstract class ICommand {
 
     private final boolean onlyPlayer;
 
     final List<String> aliases = new ArrayList<>();
-    private final HashMap<String, IICommand> subs = new LinkedHashMap<>();
+    private final HashMap<String, ICommand> subs = new LinkedHashMap<>();
 
-    public IICommand(boolean onlyPlayer, String... aliases) {
+    public ICommand(boolean onlyPlayer, String... aliases) {
         this.onlyPlayer = onlyPlayer;
         this.aliases.addAll(Arrays.asList(aliases));
     }
 
-    public void execute(ICommandSender sender, CommandArgs args) {
+    public void execute(ICommandSender sender, Args args) {
         if (args.empty()) {
             return;
         }
-        IICommand sub = subs.get(args.first());
+        ICommand sub = subs.get(args.first());
         if (sub == null) {
             return;
         }
@@ -39,11 +39,11 @@ public abstract class IICommand {
         }
     }
 
-    public void execute(EntityPlayerMP player, CommandArgs args) {
+    public void execute(EntityPlayerMP player, Args args) {
         execute((ICommandSender) player, args);
     }
 
-    public List<String> tabCompletions(CommandArgs args) {
+    public List<String> tabCompletions(Args args) {
         String first = args.first();
         if (args.size() == 1) {
             return getMatchList(first, subs.keySet());
@@ -55,7 +55,7 @@ public abstract class IICommand {
         return new ArrayList<>();
     }
 
-    protected void addSub(IICommand sub) {
+    protected void addSub(ICommand sub) {
         for (String alias : sub.aliases) {
             subs.putIfAbsent(alias, sub);
         }

@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import org.soraworld.lightarea.command.LightCommand;
+import org.soraworld.lightarea.proxy.CommonProxy;
 
 import java.io.File;
 
@@ -33,12 +35,12 @@ public class LightArea {
     public static final String MOD_VERSION = "1.1.0";
 
     @cpw.mods.fml.common.SidedProxy(
-            clientSide = "org.soraworld.lightarea.ClientProxy",
-            serverSide = "org.soraworld.lightarea.CommonProxy"
+            clientSide = "org.soraworld.lightarea.proxy.ClientProxy",
+            serverSide = "org.soraworld.lightarea.proxy.CommonProxy"
     )
     @SidedProxy(
-            clientSide = "org.soraworld.lightarea.ClientProxy",
-            serverSide = "org.soraworld.lightarea.CommonProxy"
+            clientSide = "org.soraworld.lightarea.proxy.ClientProxy",
+            serverSide = "org.soraworld.lightarea.proxy.CommonProxy"
     )
     private static CommonProxy proxy;
 
@@ -82,15 +84,5 @@ public class LightArea {
             proxy.config = new Configuration(conf, MOD_VERSION);
             proxy.load();
         }
-    }
-
-    @Mod.EventHandler
-    public void onServerStopping(FMLServerStoppingEvent event) {
-        proxy.reset();
-    }
-
-    @cpw.mods.fml.common.Mod.EventHandler
-    public void onServerStopping(cpw.mods.fml.common.event.FMLServerStoppingEvent event) {
-        proxy.reset();
     }
 }

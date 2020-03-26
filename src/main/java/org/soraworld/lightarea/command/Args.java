@@ -1,21 +1,21 @@
-package org.soraworld.lightarea;
+package org.soraworld.lightarea.command;
 
 /**
  * @author Himmelt
  */
-public final class CommandArgs {
+public final class Args {
 
     private final String[] args;
     private final int length;
     private int current;
 
-    public CommandArgs(String[] args) {
+    public Args(String[] args) {
         this.args = args;
         this.length = this.args == null ? 0 : this.args.length;
         this.current = 0;
     }
 
-    public CommandArgs(String args) {
+    public Args(String args) {
         this(args == null ? null : args.split(" "));
     }
 
@@ -27,14 +27,14 @@ public final class CommandArgs {
         return current < length;
     }
 
-    public CommandArgs next() {
+    public Args next() {
         if (current < length) {
             current++;
         }
         return this;
     }
 
-    public CommandArgs revert() {
+    public Args revert() {
         if (current > 0) {
             current--;
         }
