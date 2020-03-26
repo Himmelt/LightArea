@@ -421,10 +421,11 @@ public class CommonProxy {
     public void deleteArea(EntityPlayer player) {
         Area area = findAreaAt(player);
         if (area != null) {
+            lightAreas.get(player.dimension).remove(area.id);
+            save();
             if (isDedicated(player)) {
                 sendDeleteToAll(player.dimension, area.id);
             }
-            save();
         }
     }
 
