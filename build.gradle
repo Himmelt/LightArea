@@ -1,38 +1,58 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" }
+        maven { url 'https://files.minecraftforge.net/maven' }
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'org.soraworld', name: 'ForgeGradleURI', version: '3.+', changing: true
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 
-version = "1.2.0"
-group = "org.soraworld.lightarea"
-archivesBaseName = "LightArea-1.7.10-1.12.2"
+ext {
+    mcpRenameJavadoc = false
+}
+
+version = '1.2.0'
+group = 'org.soraworld.lightarea'
+archivesBaseName = 'LightArea-1.13.2'
 
 sourceCompatibility = targetCompatibility = 1.8
 
+repositories {
+    maven { url 'https://files.minecraftforge.net/maven' }
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://lss233.littleservice.cn/repositories/minecraft' }
+}
+
 minecraft {
-    version = "1.12.2-14.23.5.2847"//"1.8.8-11.15.0.1655"//"1.8-11.14.4.1577"//"1.9.4-12.17.0.2051"//"1.10.2-12.18.3.2511"//"1.11.2-13.20.1.2588"//"1.12-14.21.1.2443"//
-    runDir = "build/run"
-    mappings = "snapshot_20171003"//"snapshot_20151122"//"snapshot_20141130"//"snapshot_20160518"//"snapshot_20161111"//"snapshot_20161220"//
+    mappings channel: 'snapshot', version: '20190530-1.13.2'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-}
-
-processResources {
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+    minecraft 'net.minecraftforge:forge:1.13.2-25.0.219'
 }

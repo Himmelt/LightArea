@@ -1,11 +1,11 @@
 package org.soraworld.lightarea.network;
 
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.PacketBuffer;
 
 /**
  * @author Himmelt
  */
-public abstract class AreaPacket{
+public abstract class AreaPacket {
 
     public final int dim;
     public final int id;
@@ -23,13 +23,13 @@ public abstract class AreaPacket{
             this.data = data;
         }
 
-        public static void encode(Update packet, ByteBuf buf) {
+        public static void encode(Update packet, PacketBuffer buf) {
             buf.writeInt(packet.dim);
             buf.writeInt(packet.id);
             buf.writeBytes(Area.toByteBuf(packet.data));
         }
 
-        public static Update decode(ByteBuf buf) {
+        public static Update decode(PacketBuffer buf) {
             int dim = buf.readInt();
             int id = buf.readInt();
             Area data = Area.fromByteBuf(buf);
@@ -42,12 +42,12 @@ public abstract class AreaPacket{
             super(dim, id);
         }
 
-        public static void encode(Delete packet, ByteBuf buf) {
+        public static void encode(Delete packet, PacketBuffer buf) {
             buf.writeInt(packet.dim);
             buf.writeInt(packet.id);
         }
 
-        public static Delete decode(ByteBuf buf) {
+        public static Delete decode(PacketBuffer buf) {
             int dim = buf.readInt();
             int id = buf.readInt();
             return new Delete(dim, id);
@@ -62,13 +62,13 @@ public abstract class AreaPacket{
             this.gamma = gamma;
         }
 
-        public static void encode(Gamma packet, ByteBuf buf) {
+        public static void encode(Gamma packet, PacketBuffer buf) {
             buf.writeInt(packet.dim);
             buf.writeInt(packet.id);
             buf.writeFloat(packet.gamma);
         }
 
-        public static Gamma decode(ByteBuf buf) {
+        public static Gamma decode(PacketBuffer buf) {
             int dim = buf.readInt();
             int id = buf.readInt();
             float gamma = buf.readFloat();
@@ -84,13 +84,13 @@ public abstract class AreaPacket{
             this.speed = speed;
         }
 
-        public static void encode(Speed packet, ByteBuf buf) {
+        public static void encode(Speed packet, PacketBuffer buf) {
             buf.writeInt(packet.dim);
             buf.writeInt(packet.id);
             buf.writeFloat(packet.speed);
         }
 
-        public static Speed decode(ByteBuf buf) {
+        public static Speed decode(PacketBuffer buf) {
             int dim = buf.readInt();
             int id = buf.readInt();
             float speed = buf.readFloat();

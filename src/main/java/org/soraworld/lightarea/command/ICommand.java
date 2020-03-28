@@ -1,7 +1,7 @@
 package org.soraworld.lightarea.command;
 
 
-import net.minecraft.command.ICommandSender;
+import net.minecraft.command.ICommandSource;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.*;
@@ -21,7 +21,7 @@ public abstract class ICommand {
         this.aliases.addAll(Arrays.asList(aliases));
     }
 
-    public void execute(ICommandSender sender, Args args) {
+    public void execute(ICommandSource sender, Args args) {
         if (args.empty()) {
             return;
         }
@@ -40,7 +40,7 @@ public abstract class ICommand {
     }
 
     public void execute(EntityPlayerMP player, Args args) {
-        execute((ICommandSender) player, args);
+        execute((ICommandSource) player, args);
     }
 
     public List<String> tabCompletions(Args args) {

@@ -70,7 +70,7 @@ public class Area {
         player.setPositionAndUpdate((x1 + x2) / 2.0, (y1 + y2) / 2.0, (z1 + z2) / 2.0);
     }
 
-    public float nextGamma(float gamma) {
+    public double nextGamma(double gamma) {
         if (gamma < this.gamma - speed) {
             gamma += speed;
         } else if (gamma > this.gamma + speed) {

@@ -1,32 +1,52 @@
 package org.soraworld.lightarea.command;
 
-import net.minecraft.command.ICommandSender;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
 import org.soraworld.lightarea.network.Area;
 import org.soraworld.lightarea.proxy.CommonProxy;
-import org.soraworld.lightarea.util.Vec3i;
-
-import java.util.List;
 
 /**
  * @author Himmelt
  */
-public class LightCommand extends ICommand implements net.minecraft.command.ICommand {
+public class LightCommand extends ICommand {
+
+    private static LightCommand command;
+
+    public static void register(CommandDispatcher<CommandSource> dispatcher, CommonProxy proxy) {
+        if (command == null) {
+            command = new LightCommand(proxy, true, "light");
+        }
+        dispatcher.register(Commands.literal("light")
+                .requires((source) -> source.hasPermissionLevel(2))
+                .then(Commands.argument("args", StringArgumentType.greedyString())
+                        .executes(context -> {
+                            Entity entity = context.getSource().getEntity();
+                            if (entity instanceof EntityPlayerMP) {
+                                command.execute(entity, new Args(StringArgumentType.getString(context, "args")));
+                            }
+                            return 1;
+                        })
+                )
+        );
+    }
 
     public LightCommand(CommonProxy proxy, boolean onlyPlayer, String... aliases) {
         super(onlyPlayer, aliases);
         addSub(new ICommand(true, "pos1") {
             @Override
             public void execute(EntityPlayerMP player, Args args) {
-                proxy.setPos1(player, new Vec3i(player), true);
+                proxy.setPos1(player, player.getPosition(), true);
             }
         });
         addSub(new ICommand(true, "pos2") {
             @Override
             public void execute(EntityPlayerMP player, Args args) {
-                proxy.setPos2(player, new Vec3i(player), true);
+                proxy.setPos2(player, player.getPosition(), true);
             }
         });
         addSub(new ICommand(true, "create") {
@@ -67,7 +87,7 @@ public class LightCommand extends ICommand implements net.minecraft.command.ICom
             @Override
             public void execute(EntityPlayerMP player, Args args) {
                 if (args.empty()) {
-                    proxy.showList(player, player.dimension, false);
+                    proxy.showList(player, player.dimension.getId(), false);
                     return;
                 }
                 if ("all".equals(args.first())) {
@@ -109,7 +129,7 @@ public class LightCommand extends ICommand implements net.minecraft.command.ICom
                             area.gamma = Float.parseFloat(args.first());
                             if (old != area.gamma) {
                                 if (CommonProxy.isDedicated(player)) {
-                                    proxy.sendGammaToAll(player.dimension, area.id, area.gamma);
+                                    proxy.sendGammaToAll(player.dimension.getId(), area.id, area.gamma);
                                 }
                                 proxy.save();
                             }
@@ -136,7 +156,7 @@ public class LightCommand extends ICommand implements net.minecraft.command.ICom
                             area.speed = Float.parseFloat(args.first());
                             if (old != area.speed) {
                                 if (CommonProxy.isDedicated(player)) {
-                                    proxy.sendSpeedToAll(player.dimension, area.id, area.speed);
+                                    proxy.sendSpeedToAll(player.dimension.getId(), area.id, area.speed);
                                 }
                                 proxy.save();
                             }
@@ -159,87 +179,4 @@ public class LightCommand extends ICommand implements net.minecraft.command.ICom
             }
         });
     }
-
-    public String func_71517_b() {
-        return aliases.get(0);
-    }
-
-    public String func_71518_a(ICommandSender sender) {
-        return "/light pos1/pos2/create/level/speed/info/delete/tool";
-    }
-
-    public List func_71514_a() {
-        return aliases;
-    }
-
-    public void func_184881_a(MinecraftServer server, ICommandSender sender, String[] args) {
-        execute(sender, new Args(args));
-    }
-
-    public boolean func_184882_a(MinecraftServer server, ICommandSender sender) {
-        return sender.func_70003_b(2, "gamemode");
-    }
-
-    public List<String> func_184883_a(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-        return tabCompletions(new Args(args));
-    }
-
-    public boolean func_82358_a(String[] args, int index) {
-        return false;
-    }
-
-    public List func_180525_a(ICommandSender sender, String[] args, net.minecraft.util.BlockPos pos) {
-        return tabCompletions(new Args(args));
-    }
-
-    public int compareTo(net.minecraft.command.ICommand command) {
-        if (command instanceof LightCommand && command.func_71517_b().equals(this.func_71517_b())) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
-
-    /* 1.7.10 & 1.10.2 - getCommandName */
-/*
-    public String func_71517_b() {
-        return getName();
-    }
-*/
-
-    /* 1.7.10 - getCommandUsage */
-/*
-    public String func_71518_a(ICommandSender sender) {
-        return getUsage(sender);
-    }
-*/
-
-    /* 1.7.10 - getCommandAliases */
-/*
-    public List func_71514_a() {
-        return aliases;
-    }
-*/
-
-    /* 1.7.10 - processCommand */
-    public void func_71515_b(ICommandSender sender, String[] args) {
-        execute(sender, new Args(args));
-    }
-
-    /* 1.7.10 - canCommandSenderUseCommand */
-    public boolean func_71519_b(ICommandSender sender) {
-        return sender.func_70003_b(4, "op");
-    }
-
-    /* 1.7.10 - addTabCompletionOptions */
-    public List func_71516_a(ICommandSender sender, String[] args) {
-        return tabCompletions(new Args(args));
-    }
-
-/*
-    public int compareTo(Object object) {
-        if (object instanceof LightCommand && ((LightCommand) object).getName().equals(this.getName())) return 0;
-        else return 1;
-    }
-*/
 }
