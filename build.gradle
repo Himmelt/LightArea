@@ -16,13 +16,16 @@ archivesBaseName = "LightArea-1.7.10-1.12.2"
 
 sourceCompatibility = targetCompatibility = 1.8
 
+repositories {
+    maven { url 'https://files.minecraftforge.net/maven' }
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
+}
+
 minecraft {
     version = "1.12.2-14.23.5.2847"//"1.8.8-11.15.0.1655"//"1.8-11.14.4.1577"//"1.9.4-12.17.0.2051"//"1.10.2-12.18.3.2511"//"1.11.2-13.20.1.2588"//"1.12-14.21.1.2443"//
     runDir = "build/run"
-    mappings = "snapshot_20171003"//"snapshot_20151122"//"snapshot_20141130"//"snapshot_20160518"//"snapshot_20161111"//"snapshot_20161220"//
-}
-
-dependencies {
+    mappings = "snapshot_20180814"//"snapshot_20151122"//"snapshot_20141130"//"snapshot_20160518"//"snapshot_20161111"//"snapshot_20161220"//
 }
 
 processResources {

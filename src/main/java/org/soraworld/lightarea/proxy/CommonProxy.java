@@ -495,27 +495,27 @@ public class CommonProxy {
             if (stack != null) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
             } else {
-                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
         } else if (v_1_9 || v_1_10) {
             ItemStack stack = player.func_184614_ca();
             if (stack != null) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
             } else {
-                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
         } else if (v_1_11 || v_1_12 || v_1_13) {
             ItemStack stack = player.func_184614_ca();
             if (stack != null && stack.getItem() != Items.AIR) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
             } else {
-                sendChatTranslation2(player, "tool.get", tool.getUnlocalizedName() + ".name");
+                sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
         }
     }
@@ -541,15 +541,6 @@ public class CommonProxy {
         } else {
             lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, id, area));
         }
-    }
-
-    public int getDimFromName(MinecraftServer server, String worldName) {
-        for (World world : server.worlds) {
-            if (world.getWorldInfo().getWorldName().equals(worldName)) {
-                return world.provider.getDimension();
-            }
-        }
-        return Integer.MIN_VALUE;
     }
 
     public void tpAreaById(EntityPlayerMP player, int id) {

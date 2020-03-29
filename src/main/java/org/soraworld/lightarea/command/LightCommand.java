@@ -77,10 +77,7 @@ public class LightCommand extends ICommand implements net.minecraft.command.ICom
                 try {
                     proxy.showList(player, Integer.parseInt(args.first()), false);
                 } catch (Throwable ignored) {
-                    MinecraftServer server = CommonProxy.getServer(player);
-                    if (server != null) {
-                        proxy.showList(player, proxy.getDimFromName(server, args.first()), false);
-                    }
+                    proxy.sendChatTranslation(player, "invalid.int");
                 }
             }
         });
