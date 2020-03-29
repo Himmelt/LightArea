@@ -19,7 +19,7 @@ notSelect=[LightArea] Please select start pos and end pos first
 create.conflict=[LightArea] Selected area conflicts with existed areas
 
 text.click=Click Teleport
-info.list=[LightArea] id: %d  Dimension:%d  Start:%s End:%s  Level:%d  %s
+info.list=[LightArea] id:%d Dim:%d Start:%s End:%s Level:%d  %s
 
 areaTpSuccess=[LightArea] Teleport to area center
 areaIdNotFound=[LightArea] Area of this id not exist
