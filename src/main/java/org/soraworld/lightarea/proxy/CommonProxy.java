@@ -18,7 +18,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -75,42 +74,37 @@ public class CommonProxy {
     public static final boolean v_1_10;
     public static final boolean v_1_11;
     public static final boolean v_1_12;
-    public static final boolean v_1_13;
 
     static {
-        boolean v1_7 = false, v1_8 = false, v1_9 = false, v1_10 = false, v1_11 = false, v1_12 = false, v1_13 = false;
+        boolean v1_7 = false, v1_8 = false, v1_9 = false, v1_10 = false, v1_11 = false, v1_12 = false;
         try {
             Field MC_VERSION = MinecraftForge.class.getDeclaredField("MC_VERSION");
             MC_VERSION.setAccessible(true);
             String version = (String) MC_VERSION.get(null);
             if (version.contains("1.7")) {
                 v1_7 = true;
-                v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = false;
                 System.out.println("MinecraftForge 1.7");
             } else if (version.contains("1.8")) {
                 v1_8 = true;
-                v1_7 = v1_9 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                v1_7 = v1_9 = v1_10 = v1_11 = v1_12 = false;
                 System.out.println("MinecraftForge 1.8");
             } else if (version.contains("1.9")) {
                 v1_9 = true;
-                v1_7 = v1_8 = v1_10 = v1_11 = v1_12 = v1_13 = false;
+                v1_7 = v1_8 = v1_10 = v1_11 = v1_12 = false;
                 System.out.println("MinecraftForge 1.9");
             } else if (version.contains("1.10")) {
                 v1_10 = true;
-                v1_7 = v1_8 = v1_9 = v1_11 = v1_12 = v1_13 = false;
+                v1_7 = v1_8 = v1_9 = v1_11 = v1_12 = false;
                 System.out.println("MinecraftForge 1.10");
             } else if (version.contains("1.11")) {
                 v1_11 = true;
-                v1_7 = v1_8 = v1_9 = v1_10 = v1_12 = v1_13 = false;
+                v1_7 = v1_8 = v1_9 = v1_10 = v1_12 = false;
                 System.out.println("MinecraftForge 1.11");
             } else if (version.contains("1.12")) {
                 v1_12 = true;
-                v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_13 = false;
+                v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = false;
                 System.out.println("MinecraftForge 1.12");
-            } else if (version.contains("1.13")) {
-                v1_13 = true;
-                v1_7 = v1_8 = v1_9 = v1_10 = v1_11 = v1_12 = false;
-                System.out.println("MinecraftForge 1.13");
             }
         } catch (Throwable ignored) {
         }
@@ -120,7 +114,6 @@ public class CommonProxy {
         v_1_10 = v1_10;
         v_1_11 = v1_11;
         v_1_12 = v1_12;
-        v_1_13 = v1_13;
         Field field;
         Object obj = null;
         try {
@@ -256,7 +249,7 @@ public class CommonProxy {
                 Object object = null;
                 if (v_1_7) {
                     object = getObjectFromName.invoke(REGISTRY, toolName);
-                } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+                } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12) {
                     object = getObjectFromName.invoke(REGISTRY, new ResourceLocation(toolName));
                 }
                 if (object instanceof Item) {
@@ -325,7 +318,7 @@ public class CommonProxy {
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
             player.field_71135_a.sendPacket((Packet) new S3FPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
-        } else if (v_1_9 | v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 | v_1_10 || v_1_11 || v_1_12) {
             player.field_71135_a.sendPacket((Packet) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
             player.field_71135_a.sendPacket((Packet) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
             player.field_71135_a.sendPacket((Packet) new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
@@ -335,7 +328,7 @@ public class CommonProxy {
     private void sendTo(ByteBuf buf, EntityPlayerMP player) {
         if (v_1_7) {
             channel_old.sendTo(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"), player);
-        } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12) {
             channel_new.sendTo(new FMLProxyPacket(new PacketBuffer(buf), "light"), player);
         }
     }
@@ -343,7 +336,7 @@ public class CommonProxy {
     private void sendToAll(ByteBuf buf) {
         if (v_1_7) {
             channel_old.sendToAll(new cpw.mods.fml.common.network.internal.FMLProxyPacket(buf, "light"));
-        } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_8 || v_1_9 || v_1_10 || v_1_11 || v_1_12) {
             channel_new.sendToAll(new FMLProxyPacket(new PacketBuffer(buf), "light"));
         }
     }
@@ -462,7 +455,7 @@ public class CommonProxy {
     public void sendChatTranslation(ICommandSender sender, String key, Object... args) {
         if (v_1_7 || v_1_8) {
             sender.func_145747_a(new ChatComponentTranslation(key, args));
-        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12) {
             sender.func_145747_a(new TextComponentTranslation(key, args));
         }
     }
@@ -470,22 +463,22 @@ public class CommonProxy {
     public void sendChatTranslation2(EntityPlayerMP player, String key, String objKey) {
         if (v_1_7 || v_1_8) {
             player.func_145747_a(new ChatComponentTranslation(key, new ChatComponentTranslation(objKey)));
-        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12) {
             player.func_145747_a(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
         }
     }
 
-    public void sendAreaInfo(EntityPlayerMP player, int id, Area area) {
+    public void sendAreaInfo(EntityPlayerMP player, int dim, int id, Area area) {
         if (v_1_7 || v_1_8) {
             ChatStyle style = new ChatStyle().func_150238_a(EnumChatFormatting.GREEN).func_150227_a(true)
                     .func_150241_a(new net.minecraft.event.ClickEvent(net.minecraft.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + id));
             IChatComponent click = new ChatComponentTranslation("text.click").func_150255_a(style);
-            player.func_145747_a(new ChatComponentTranslation("info.list", id, area.pos1(), area.pos2(), area.gamma, click));
-        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12 || v_1_13) {
+            player.func_145747_a(new ChatComponentTranslation("info.list", id, dim, area.pos1(), area.pos2(), area.gamma, click));
+        } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12) {
             Style style = new Style().setColor(TextFormatting.GREEN).setBold(true)
                     .setClickEvent(new net.minecraft.util.text.event.ClickEvent(net.minecraft.util.text.event.ClickEvent.Action.RUN_COMMAND, "/light tp " + id));
             ITextComponent click = new TextComponentTranslation("text.click").setStyle(style);
-            player.func_145747_a(new TextComponentTranslation("info.list", id, area.pos1(), area.pos2(), area.gamma, click));
+            player.func_145747_a(new TextComponentTranslation("info.list", id, dim, area.pos1(), area.pos2(), area.gamma, click));
         }
     }
 
@@ -508,7 +501,7 @@ public class CommonProxy {
             } else {
                 sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
-        } else if (v_1_11 || v_1_12 || v_1_13) {
+        } else if (v_1_11 || v_1_12) {
             ItemStack stack = player.func_184614_ca();
             if (stack != null && stack.getItem() != Items.AIR) {
                 tool = stack.getItem();
@@ -520,26 +513,11 @@ public class CommonProxy {
         }
     }
 
-    public void setSpeed(float speed) {
-        if (speed < 0) {
-            speed = 0;
-        }
-        this.speed = speed;
-        save();
-    }
-
-    public void sendSpeedToAll() {
-        ByteBuf buf = Unpooled.buffer();
-        buf.writeByte(SPEED);
-        buf.writeFloat(speed);
-        sendToAll(buf);
-    }
-
     public void showList(EntityPlayerMP player, int dim, boolean all) {
         if (all) {
-            lightAreas.forEach((dimId, dimAreas) -> dimAreas.forEach((id, area) -> sendAreaInfo(player, id, area)));
+            lightAreas.forEach((dimId, dimAreas) -> dimAreas.forEach((id, area) -> sendAreaInfo(player, dimId, id, area)));
         } else {
-            lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, id, area));
+            lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, dim, id, area));
         }
     }
 
@@ -547,19 +525,16 @@ public class CommonProxy {
         if (player == null) {
             return;
         }
-        MinecraftServer server = CommonProxy.getServer(player);
-        if (server == null) {
-            return;
-        }
         for (Map.Entry<Integer, HashMap<Integer, Area>> entry : lightAreas.entrySet()) {
-            Integer key = entry.getKey();
+            int dim = entry.getKey();
             HashMap<Integer, Area> areas = entry.getValue();
             Area area = areas.get(id);
             if (area != null) {
-                if (player.dimension != key) {
-                    World world = getWorldByDim(server, key);
-                    if (world != null) {
-                        player.setWorld(world);
+                if (player.field_71093_bK != dim) {
+                    if (v_1_7 || v_1_8) {
+                        player.func_71027_c(dim);
+                    } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12) {
+                        player.func_184204_a(dim);
                     }
                 }
                 area.center(player);
@@ -572,15 +547,6 @@ public class CommonProxy {
 
     public boolean isSelectTool(ItemStack stack) {
         return stack != null && stack.getItem().equals(tool);
-    }
-
-    public static World getWorldByDim(MinecraftServer server, int dim) {
-        for (World world : server.worlds) {
-            if (world.provider.getDimension() == dim) {
-                return world;
-            }
-        }
-        return null;
     }
 
     public static boolean isDedicated(EntityPlayerMP player) {
