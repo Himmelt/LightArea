@@ -495,7 +495,7 @@ public class CommonProxy {
             if (stack != null) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey(stack) + ".name");
             } else {
                 sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
@@ -504,7 +504,7 @@ public class CommonProxy {
             if (stack != null) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey(stack) + ".name");
             } else {
                 sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
@@ -513,7 +513,7 @@ public class CommonProxy {
             if (stack != null && stack.getItem() != Items.AIR) {
                 tool = stack.getItem();
                 save();
-                sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
+                sendChatTranslation2(player, "tool.set", tool.getTranslationKey(stack) + ".name");
             } else {
                 sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
             }
