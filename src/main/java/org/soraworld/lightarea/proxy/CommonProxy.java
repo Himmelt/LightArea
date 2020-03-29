@@ -23,7 +23,6 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
@@ -386,10 +385,10 @@ public class CommonProxy {
         player.sendMessage(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
     }
 
-    public void sendAreaInfo(EntityPlayer player, int id, Area area) {
+    public void sendAreaInfo(EntityPlayer player, int dim, int id, Area area) {
         Style style = new Style().setColor(TextFormatting.GREEN).setBold(true).setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/light tp " + id));
         ITextComponent click = new TextComponentTranslation("text.click").setStyle(style);
-        player.sendMessage(new TextComponentTranslation("info.list", id, area.pos1(), area.pos2(), area.gamma, click));
+        player.sendMessage(new TextComponentTranslation("info.list", id, dim, area.pos1(), area.pos2(), area.gamma, click));
     }
 
     public void commandTool(EntityPlayer player) {
@@ -397,7 +396,7 @@ public class CommonProxy {
         if (stack.getItem() != Items.AIR) {
             tool = stack.getItem();
             save();
-            sendChatTranslation2(player, "tool.set", tool.getTranslationKey());
+            sendChatTranslation2(player, "tool.set", tool.getTranslationKey(stack));
         } else {
             sendChatTranslation2(player, "tool.get", tool.getTranslationKey());
         }
@@ -405,9 +404,9 @@ public class CommonProxy {
 
     public void showList(EntityPlayer player, int dim, boolean all) {
         if (all) {
-            lightAreas.forEach((dimId, dimAreas) -> dimAreas.forEach((id, area) -> sendAreaInfo(player, id, area)));
+            lightAreas.forEach((dimId, dimAreas) -> dimAreas.forEach((id, area) -> sendAreaInfo(player, dimId, id, area)));
         } else {
-            lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, id, area));
+            lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, dim, id, area));
         }
     }
 
@@ -415,20 +414,13 @@ public class CommonProxy {
         if (player == null) {
             return;
         }
-        MinecraftServer server = CommonProxy.getServer(player);
-        if (server == null) {
-            return;
-        }
         for (Map.Entry<Integer, HashMap<Integer, Area>> entry : lightAreas.entrySet()) {
-            Integer key = entry.getKey();
+            int dim = entry.getKey();
             HashMap<Integer, Area> areas = entry.getValue();
             Area area = areas.get(id);
             if (area != null) {
-                if (player.dimension.getId() != key) {
-                    World world = getWorldByDim(server, key);
-                    if (world != null) {
-                        player.setWorld(world);
-                    }
+                if (player.dimension.getId() != dim) {
+                    player.changeDimension(DimensionType.getById(dim));
                 }
                 area.center(player);
                 sendChatTranslation(player, "areaTpSuccess");
@@ -440,15 +432,6 @@ public class CommonProxy {
 
     public boolean isSelectTool(ItemStack stack) {
         return stack != null && stack.getItem().equals(tool);
-    }
-
-    public static World getWorldByDim(MinecraftServer server, int dim) {
-        for (World world : server.getWorlds()) {
-            if (world.getDimension().getType().getId() == dim) {
-                return world;
-            }
-        }
-        return null;
     }
 
     public static boolean isDedicated(EntityPlayerMP player) {

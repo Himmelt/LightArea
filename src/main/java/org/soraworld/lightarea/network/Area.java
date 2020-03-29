@@ -51,11 +51,11 @@ public class Area {
     }
 
     public String pos1() {
-        return "(" + x1 + " , " + y1 + " , " + z1 + ')';
+        return "(" + x1 + "," + y1 + "," + z1 + ')';
     }
 
     public String pos2() {
-        return "(" + x2 + " , " + y2 + " , " + z2 + ')';
+        return "(" + x2 + "," + y2 + "," + z2 + ')';
     }
 
     public Vec3i vec1() {
