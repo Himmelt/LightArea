@@ -1,14 +1,14 @@
-modLoader="javafml" #mandatory
-loaderVersion="[25,)" #mandatory 25
-[[mods]] #mandatory
-modId="lightarea" #mandatory
-version="1.2.0" #mandatory
-displayName="LightArea" #mandatory
-#updateJSONURL="http://myurl.me/" #optional
-#displayURL="http://example.com/" #optional
-logoFile="assets/lightarea/logo.png" #optional
-credits="Himmelt, making this mod." #optional
-authors="Himmelt" #optional
+modLoader="javafml"
+loaderVersion="[25,)"
+logoFile="logo.png"
+
+[[mods]]
+modId="lightarea"
+version="${version}"
+displayName="LightArea"
+displayURL="https://github.com/Himmelt/LightArea"
+credits="Himmelt, making this mod."
+authors="Himmelt"
 description='''
 Light Area Mod , Copyright (c) 2018-2020 Himmelt.
 '''

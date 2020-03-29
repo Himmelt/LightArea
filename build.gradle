@@ -57,6 +57,14 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.13.2-25.0.219'
 }
 
+processResources {
+    inputs.property "version", project.version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+        expand 'version': project.version
+    }
+}
+
 gradle.addURIListener {
     String uri = it
             .replaceAll('https://files.minecraftforge.net/maven', 'https://bmclapi2.bangbang93.com/maven')
