@@ -1,182 +1,159 @@
 package org.soraworld.lightarea.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
 import org.soraworld.lightarea.network.Area;
 import org.soraworld.lightarea.proxy.CommonProxy;
 
 /**
  * @author Himmelt
  */
-public class LightCommand extends ICommand {
-
-    private static LightCommand command;
-
+public class LightCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher, CommonProxy proxy) {
-        if (command == null) {
-            command = new LightCommand(proxy, true, "light");
-        }
         dispatcher.register(Commands.literal("light")
-                .requires((source) -> source.hasPermissionLevel(2))
-                .then(Commands.argument("args", StringArgumentType.greedyString())
+                .requires((source) -> (source.getEntity() instanceof EntityPlayerMP) && source.hasPermissionLevel(2))
+                .then(Commands.literal("pos1").executes(context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    proxy.setPos1(player, player.getPosition(), true);
+                    return 1;
+                }))
+                .then(Commands.literal("pos2").executes(context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    proxy.setPos2(player, player.getPosition(), true);
+                    return 1;
+                }))
+                .then(Commands.literal("create")
+                        .then(Commands.argument("gamma", FloatArgumentType.floatArg())
+                                .then(Commands.argument("speed", FloatArgumentType.floatArg(0.0F))
+                                        .executes(context -> {
+                                            EntityPlayerMP player = context.getSource().asPlayer();
+                                            float gamma = context.getArgument("gamma", float.class);
+                                            float speed = context.getArgument("speed", float.class);
+                                            proxy.createArea(player, gamma, speed);
+                                            return 1;
+                                        }))
+                                .executes(context -> {
+                                    EntityPlayerMP player = context.getSource().asPlayer();
+                                    float gamma = context.getArgument("gamma", float.class);
+                                    proxy.createArea(player, gamma, 0.2F);
+                                    return 1;
+                                }))
                         .executes(context -> {
-                            Entity entity = context.getSource().getEntity();
-                            if (entity instanceof EntityPlayerMP) {
-                                command.execute(entity, new Args(StringArgumentType.getString(context, "args")));
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            proxy.createArea(player, 1.0F, 0.2F);
+                            return 1;
+                        }))
+                .then(Commands.literal("delete").executes(context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    proxy.deleteArea(player);
+                    return 1;
+                }))
+                .then(Commands.literal("info").executes(context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    Area area = proxy.findAreaAt(player);
+                    if (area != null) {
+                        proxy.sendChatTranslation(player, "info.pos1", area.pos1());
+                        proxy.sendChatTranslation(player, "info.pos2", area.pos2());
+                        proxy.sendChatTranslation(player, "info.light", area.gamma);
+                        proxy.sendChatTranslation(player, "info.speed", area.speed);
+                        proxy.setPos1(player, area.vec1(), false);
+                        proxy.setPos2(player, area.vec2(), false);
+                    } else {
+                        proxy.sendChatTranslation(player, "info.notInArea");
+                    }
+                    return 1;
+                }))
+                .then(Commands.literal("list")
+                        .then(Commands.literal("all").executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            proxy.showList(player, 0, true);
+                            return 1;
+                        }))
+                        .then(Commands.argument("dim", IntegerArgumentType.integer()).executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            int dim = context.getArgument("dim", int.class);
+                            proxy.showList(player, dim, false);
+                            return 1;
+                        }))
+                        .executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            proxy.showList(player, player.dimension.getId(), false);
+                            return 1;
+                        }))
+                .then(Commands.literal("tp")
+                        .then(Commands.argument("id", IntegerArgumentType.integer(0)).executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            int id = context.getArgument("id", int.class);
+                            proxy.tpAreaById(player, id);
+                            return 1;
+                        })))
+                .then(Commands.literal("level")
+                        .then(Commands.argument("gamma", FloatArgumentType.floatArg()).executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            Area area = proxy.findAreaAt(player);
+                            if (area != null) {
+                                float old = area.gamma;
+                                area.gamma = context.getArgument("gamma", float.class);
+                                if (old != area.gamma) {
+                                    if (CommonProxy.isDedicated(player)) {
+                                        proxy.sendGammaToAll(player.dimension.getId(), area.id, area.gamma);
+                                    }
+                                    proxy.save();
+                                }
+                                proxy.sendChatTranslation(player, "info.light", area.gamma);
+                            } else {
+                                proxy.sendChatTranslation(player, "info.notInArea");
                             }
                             return 1;
-                        })
-                )
+                        }))
+                        .executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            Area area = proxy.findAreaAt(player);
+                            if (area != null) {
+                                proxy.sendChatTranslation(player, "info.light", area.gamma);
+                            } else {
+                                proxy.sendChatTranslation(player, "info.notInArea");
+                            }
+                            return 1;
+                        }))
+                .then(Commands.literal("speed")
+                        .then(Commands.argument("speed", FloatArgumentType.floatArg()).executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            Area area = proxy.findAreaAt(player);
+                            if (area != null) {
+                                float old = area.speed;
+                                area.speed = context.getArgument("speed", float.class);
+                                if (old != area.speed) {
+                                    if (CommonProxy.isDedicated(player)) {
+                                        proxy.sendSpeedToAll(player.dimension.getId(), area.id, area.speed);
+                                    }
+                                    proxy.save();
+                                }
+                                proxy.sendChatTranslation(player, "info.speed", area.speed);
+                            } else {
+                                proxy.sendChatTranslation(player, "info.notInArea");
+                            }
+                            return 1;
+                        }))
+                        .executes(context -> {
+                            EntityPlayerMP player = context.getSource().asPlayer();
+                            Area area = proxy.findAreaAt(player);
+                            if (area != null) {
+                                proxy.sendChatTranslation(player, "info.speed", area.speed);
+                            } else {
+                                proxy.sendChatTranslation(player, "info.notInArea");
+                            }
+                            return 1;
+                        }))
+                .then(Commands.literal("tool").executes(context -> {
+                    EntityPlayerMP player = context.getSource().asPlayer();
+                    proxy.commandTool(player);
+                    return 1;
+                }))
         );
-    }
-
-    public LightCommand(CommonProxy proxy, boolean onlyPlayer, String... aliases) {
-        super(onlyPlayer, aliases);
-        addSub(new ICommand(true, "pos1") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                proxy.setPos1(player, player.getPosition(), true);
-            }
-        });
-        addSub(new ICommand(true, "pos2") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                proxy.setPos2(player, player.getPosition(), true);
-            }
-        });
-        addSub(new ICommand(true, "create") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                try {
-                    float gamma = args.size() >= 1 ? Float.parseFloat(args.get(0)) : 1.0F;
-                    float speed = args.size() >= 2 ? Float.parseFloat(args.get(1)) : 0.2F;
-                    proxy.createArea(player, gamma, speed);
-                } catch (Throwable e) {
-                    proxy.sendChatTranslation(player, "invalid.float");
-                }
-            }
-        });
-        addSub(new ICommand(true, "delete") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                proxy.deleteArea(player);
-            }
-        });
-        addSub(new ICommand(true, "info") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                Area area = proxy.findAreaAt(player);
-                if (area != null) {
-                    proxy.sendChatTranslation(player, "info.pos1", area.pos1());
-                    proxy.sendChatTranslation(player, "info.pos2", area.pos2());
-                    proxy.sendChatTranslation(player, "info.light", area.gamma);
-                    proxy.sendChatTranslation(player, "info.speed", area.speed);
-                    proxy.setPos1(player, area.vec1(), false);
-                    proxy.setPos2(player, area.vec2(), false);
-                } else {
-                    proxy.sendChatTranslation(player, "info.notInArea");
-                }
-            }
-        });
-        addSub(new ICommand(true, "list") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                if (args.empty()) {
-                    proxy.showList(player, player.dimension.getId(), false);
-                    return;
-                }
-                if ("all".equals(args.first())) {
-                    proxy.showList(player, 0, true);
-                    return;
-                }
-                try {
-                    proxy.showList(player, Integer.parseInt(args.first()), false);
-                } catch (Throwable ignored) {
-                    MinecraftServer server = CommonProxy.getServer(player);
-                    if (server != null) {
-                        proxy.showList(player, proxy.getDimFromName(server, args.first()), false);
-                    }
-                }
-            }
-        });
-        addSub(new ICommand(true, "tp") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                if (args.notEmpty()) {
-                    try {
-                        proxy.tpAreaById(player, Integer.parseInt(args.first()));
-                    } catch (Throwable e) {
-                        proxy.sendChatTranslation(player, "invalid.int");
-                    }
-                } else {
-                    proxy.sendChatTranslation(player, "empty.args");
-                }
-            }
-        });
-        addSub(new ICommand(true, "level") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                Area area = proxy.findAreaAt(player);
-                if (area != null) {
-                    if (args.notEmpty()) {
-                        try {
-                            float old = area.gamma;
-                            area.gamma = Float.parseFloat(args.first());
-                            if (old != area.gamma) {
-                                if (CommonProxy.isDedicated(player)) {
-                                    proxy.sendGammaToAll(player.dimension.getId(), area.id, area.gamma);
-                                }
-                                proxy.save();
-                            }
-                            proxy.sendChatTranslation(player, "info.light", area.gamma);
-                        } catch (Throwable e) {
-                            proxy.sendChatTranslation(player, "invalid.float");
-                        }
-                    } else {
-                        proxy.sendChatTranslation(player, "info.light", area.gamma);
-                    }
-                } else {
-                    proxy.sendChatTranslation(player, "info.notInArea");
-                }
-            }
-        });
-        addSub(new ICommand(true, "speed") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                Area area = proxy.findAreaAt(player);
-                if (area != null) {
-                    if (args.notEmpty()) {
-                        try {
-                            float old = area.speed;
-                            area.speed = Float.parseFloat(args.first());
-                            if (old != area.speed) {
-                                if (CommonProxy.isDedicated(player)) {
-                                    proxy.sendSpeedToAll(player.dimension.getId(), area.id, area.speed);
-                                }
-                                proxy.save();
-                            }
-                            proxy.sendChatTranslation(player, "info.speed", area.speed);
-                        } catch (Throwable e) {
-                            proxy.sendChatTranslation(player, "invalid.float");
-                        }
-                    } else {
-                        proxy.sendChatTranslation(player, "info.speed", area.speed);
-                    }
-                } else {
-                    proxy.sendChatTranslation(player, "info.notInArea");
-                }
-            }
-        });
-        addSub(new ICommand(true, "tool") {
-            @Override
-            public void execute(EntityPlayerMP player, Args args) {
-                proxy.commandTool(player);
-            }
-        });
     }
 }

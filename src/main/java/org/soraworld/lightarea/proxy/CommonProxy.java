@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -83,6 +84,7 @@ public class CommonProxy {
         channel.registerMessage(DELETE, AreaPacket.Delete.class, AreaPacket.Delete::encode, AreaPacket.Delete::decode, this::processDelete);
         channel.registerMessage(GAMMA, AreaPacket.Gamma.class, AreaPacket.Gamma::encode, AreaPacket.Gamma::decode, this::processGamma);
         channel.registerMessage(SPEED, AreaPacket.Speed.class, AreaPacket.Speed::encode, AreaPacket.Speed::decode, this::processSpeed);
+        MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new CommonEventHandler(this));
     }
 
@@ -93,6 +95,7 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(new ClientEventHandler(this));
     }
 
+    @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LightCommand.register(event.getCommandDispatcher(), this);
         File save = event.getServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
@@ -394,9 +397,9 @@ public class CommonProxy {
         if (stack.getItem() != Items.AIR) {
             tool = stack.getItem();
             save();
-            sendChatTranslation2(player, "tool.set", tool.getTranslationKey() + ".name");
+            sendChatTranslation2(player, "tool.set", tool.getTranslationKey());
         } else {
-            sendChatTranslation2(player, "tool.get", tool.getTranslationKey() + ".name");
+            sendChatTranslation2(player, "tool.get", tool.getTranslationKey());
         }
     }
 
@@ -406,15 +409,6 @@ public class CommonProxy {
         } else {
             lightAreas.getOrDefault(dim, new HashMap<>()).forEach((id, area) -> sendAreaInfo(player, id, area));
         }
-    }
-
-    public int getDimFromName(MinecraftServer server, String worldName) {
-        for (World world : server.getWorlds()) {
-            if (world.getWorldInfo().getWorldName().equals(worldName)) {
-                return world.getDimension().getType().getId();
-            }
-        }
-        return Integer.MIN_VALUE;
     }
 
     public void tpAreaById(EntityPlayerMP player, int id) {
