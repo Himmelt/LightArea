@@ -56,3 +56,13 @@ minecraft {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.13.2-25.0.219'
 }
+
+gradle.addURIListener {
+    String uri = it
+    // https://files.minecraftforge.net/maven -> https://bmclapi2.bangbang93.com/maven
+            .replaceAll('https://files.minecraftforge.net/maven', 'https://bmclapi2.bangbang93.com/maven')
+    // https://libraries.minecraft.net/ -> https://bmclapi2.bangbang93.com/maven
+            .replaceAll('https://libraries.minecraft.net/', 'https://bmclapi2.bangbang93.com/maven')
+    println uri
+    return uri
+}
