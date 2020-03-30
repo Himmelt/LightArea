@@ -23,9 +23,11 @@ repositories {
 }
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"//"1.8.8-11.15.0.1655"//"1.8-11.14.4.1577"//"1.9.4-12.17.0.2051"//"1.10.2-12.18.3.2511"//"1.11.2-13.20.1.2588"//"1.12-14.21.1.2443"//
+    version = "1.12.2-14.23.5.2847"
+//"1.8.8-11.15.0.1655"//"1.8-11.14.4.1577"//"1.9.4-12.17.0.2051"//"1.10.2-12.18.3.2511"//"1.11.2-13.20.1.2588"//"1.12-14.21.1.2443"//
     runDir = "build/run"
-    mappings = "snapshot_20180814"//"snapshot_20151122"//"snapshot_20141130"//"snapshot_20160518"//"snapshot_20161111"//"snapshot_20161220"//
+    mappings = "snapshot_20180814"
+//"snapshot_20151122"//"snapshot_20141130"//"snapshot_20160518"//"snapshot_20161111"//"snapshot_20161220"//
 }
 
 processResources {
@@ -38,4 +40,14 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+gradle.addURIListener {
+    String uri = it
+            .replaceAll('https://files.minecraftforge.net/maven', 'https://bmclapi2.bangbang93.com/maven')
+            .replaceAll('https://libraries.minecraft.net/', 'https://mclib.mirrors.tmysam.top/')
+            .replaceAll('https://launcher.mojang.com/v1/objects', 'https://mc.mirrors.tmysam.top/v1/objects')
+            .replaceAll('https://resources.download.minecraft.net/cd/', 'https://mcres.mirrors.tmysam.top/cd/')
+    println uri
+    return uri
 }
