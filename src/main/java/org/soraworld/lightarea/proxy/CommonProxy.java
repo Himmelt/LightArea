@@ -6,7 +6,6 @@ import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.VideoSettingsScreen;
 import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
@@ -14,8 +13,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
+import net.minecraft.network.play.server.*;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
@@ -26,6 +27,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldInfo;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -33,7 +36,9 @@ import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.hooks.BasicEventHooks;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -417,17 +422,8 @@ public class CommonProxy {
             HashMap<Integer, Area> areas = entry.getValue();
             Area area = areas.get(id);
             if (area != null) {
-                if (player.dimension.getId() != dim) {
-                    DimensionType type = DimensionType.getById(dim);
-                    if (type != null) {
-                        Entity entity = player.changeDimension(type);
-                        if (entity != null) {
-                            area.center(player);
-                            sendChatTranslation(player, "areaTpSuccess");
-                        }
-                    }
-                } else {
-                    area.center(player);
+                DimensionType type = DimensionType.getById(dim);
+                if (type != null && changeDimension(player, type, area.center())) {
                     sendChatTranslation(player, "areaTpSuccess");
                 }
                 return;
@@ -450,5 +446,55 @@ public class CommonProxy {
             return ((ServerWorld) player.world).getServer();
         }
         return null;
+    }
+
+    public static boolean changeDimension(ServerPlayerEntity player, DimensionType to, BlockPos target) {
+        return changeDimension(player, to, target.getX(), target.getY(), target.getZ());
+    }
+
+    public static boolean changeDimension(ServerPlayerEntity player, DimensionType to, double toX, double toY, double toZ) {
+        if (player.dimension == to) {
+            player.setPositionAndUpdate(toX, toY, toZ);
+            return true;
+        }
+        if (!ForgeHooks.onTravelToDimension(player, to)) {
+            return false;
+        }
+        DimensionType from = player.dimension;
+        player.detach();
+        ServerWorld fromWorld = player.server.func_71218_a(from);
+        player.dimension = to;
+        ServerWorld toWorld = player.server.func_71218_a(to);
+        WorldInfo oldInfo = player.world.getWorldInfo();
+        NetworkHooks.sendDimensionDataPacket(player.connection.netManager, player);
+        player.connection.sendPacket(new SRespawnPacket(to, oldInfo.getGenerator(), player.interactionManager.getGameType()));
+        player.connection.sendPacket(new SServerDifficultyPacket(oldInfo.getDifficulty(), oldInfo.isDifficultyLocked()));
+        PlayerList playerlist = player.server.getPlayerList();
+        playerlist.updatePermissionLevel(player);
+        fromWorld.removeEntity(player, true);
+        player.revive();
+
+        float pitch = player.rotationPitch;
+        float yaw = player.rotationYaw;
+
+        fromWorld.getProfiler().startSection("moving");
+        player.setLocationAndAngles(toX, toY, toZ, yaw, pitch);
+        fromWorld.getProfiler().endSection();
+
+        player.setWorld(toWorld);
+        toWorld.func_217447_b(player);
+        player.connection.setPlayerLocation(player.posX, player.posY, player.posZ, yaw, pitch);
+        player.interactionManager.func_73080_a(toWorld);
+        player.connection.sendPacket(new SPlayerAbilitiesPacket(player.abilities));
+        playerlist.func_72354_b(player, toWorld);
+        playerlist.sendInventory(player);
+
+        for (EffectInstance instance : player.getActivePotionEffects()) {
+            player.connection.sendPacket(new SPlayEntityEffectPacket(player.getEntityId(), instance));
+        }
+
+        player.connection.sendPacket(new SPlaySoundEventPacket(1032, BlockPos.ZERO, 0, false));
+        BasicEventHooks.firePlayerChangedDimensionEvent(player, from, to);
+        return true;
     }
 }
