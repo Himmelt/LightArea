@@ -109,9 +109,7 @@ public class CommonProxy {
 
     public void processUpdate(AreaPacket.Update packet, Supplier<NetworkEvent.Context> context) {
         if (EffectiveSide.get() == LogicalSide.CLIENT) {
-            context.get().enqueueWork(() -> {
-                lightAreas.computeIfAbsent(packet.dim, HashMap::new).put(packet.id, packet.data);
-            });
+            context.get().enqueueWork(() -> lightAreas.computeIfAbsent(packet.dim, dim -> new HashMap<>()).put(packet.id, packet.data));
         }
     }
 
@@ -420,10 +418,17 @@ public class CommonProxy {
             Area area = areas.get(id);
             if (area != null) {
                 if (player.dimension.getId() != dim) {
-                    player.changeDimension(DimensionType.getById(dim));
+                    DimensionType type = DimensionType.getById(dim);
+                    if (type != null) {
+                        player.changeDimension(type, (world, entity, yaw) -> {
+                            entity.moveToBlockPosAndAngles(area.center(), yaw, entity.rotationPitch);
+                            sendChatTranslation(player, "areaTpSuccess");
+                        });
+                    }
+                } else {
+                    area.center(player);
+                    sendChatTranslation(player, "areaTpSuccess");
                 }
-                area.center(player);
-                sendChatTranslation(player, "areaTpSuccess");
                 return;
             }
         }
