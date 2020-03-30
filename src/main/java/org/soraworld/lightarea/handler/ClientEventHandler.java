@@ -1,14 +1,11 @@
 package org.soraworld.lightarea.handler;
 
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiMultiplayer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.VideoSettingsScreen;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.soraworld.lightarea.proxy.CommonProxy;
 
 /**
@@ -24,23 +21,20 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void onGuiOpen(GuiScreenEvent.DrawScreenEvent.Post event) {
-        if (event.getGui() instanceof GuiVideoSettings) {
+        if (event.getGui() instanceof VideoSettingsScreen) {
             proxy.saveLight();
         }
     }
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.player instanceof EntityPlayerSP) {
+        if (event.player instanceof ClientPlayerEntity) {
             proxy.updateClientGamma(event.player);
         }
     }
 
     @SubscribeEvent
-    public void onLogout(GuiOpenEvent event) {
-        GuiScreen screen = event.getGui();
-        if (screen instanceof GuiMainMenu || screen instanceof GuiMultiplayer) {
-            proxy.clientReset();
-        }
+    public void onLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        proxy.clientReset();
     }
 }

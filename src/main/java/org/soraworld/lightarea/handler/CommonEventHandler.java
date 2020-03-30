@@ -1,12 +1,12 @@
 package org.soraworld.lightarea.handler;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.soraworld.lightarea.proxy.CommonProxy;
 
 /**
@@ -22,10 +22,10 @@ public class CommonEventHandler {
 
     @SubscribeEvent(receiveCanceled = true)
     public void onLeftClick(PlayerInteractEvent event) {
-        if (event instanceof PlayerInteractEvent.LeftClickBlock && event.getHand() == EnumHand.MAIN_HAND) {
-            EntityPlayer player = event.getEntityPlayer();
+        if (event instanceof PlayerInteractEvent.LeftClickBlock && event.getHand() == Hand.MAIN_HAND) {
+            PlayerEntity player = event.getEntityPlayer();
             ItemStack stack = player.getHeldItemMainhand();
-            if (player instanceof EntityPlayerMP && hasPerm(player) && proxy.isSelectTool(stack)) {
+            if (player instanceof ServerPlayerEntity && hasPerm(player) && proxy.isSelectTool(stack)) {
                 proxy.setPos1(player, event.getPos(), true);
                 event.setCanceled(true);
             }
@@ -34,10 +34,10 @@ public class CommonEventHandler {
 
     @SubscribeEvent(receiveCanceled = true)
     public void onRightClick(PlayerInteractEvent event) {
-        if (event instanceof PlayerInteractEvent.RightClickBlock && event.getHand() == EnumHand.MAIN_HAND) {
-            EntityPlayer player = event.getEntityPlayer();
+        if (event instanceof PlayerInteractEvent.RightClickBlock && event.getHand() == Hand.MAIN_HAND) {
+            PlayerEntity player = event.getEntityPlayer();
             ItemStack stack = player.getHeldItemMainhand();
-            if (player instanceof EntityPlayerMP && hasPerm(player) && proxy.isSelectTool(stack)) {
+            if (player instanceof ServerPlayerEntity && hasPerm(player) && proxy.isSelectTool(stack)) {
                 proxy.setPos2(player, event.getPos(), true);
                 event.setCanceled(true);
             }
@@ -46,8 +46,8 @@ public class CommonEventHandler {
 
     @SubscribeEvent
     public void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer() instanceof EntityPlayerMP) {
-            proxy.sendAllAreasTo((EntityPlayerMP) event.getPlayer());
+        if (event.getPlayer() instanceof ServerPlayerEntity) {
+            proxy.sendAllAreasTo((ServerPlayerEntity) event.getPlayer());
         }
     }
 
@@ -61,7 +61,7 @@ public class CommonEventHandler {
         proxy.clearSelect(event.getPlayer());
     }
 
-    public static boolean hasPerm(EntityPlayer player) {
+    public static boolean hasPerm(PlayerEntity player) {
         return player.hasPermissionLevel(2);
     }
 }

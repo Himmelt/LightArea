@@ -4,27 +4,28 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiVideoSettings;
+import net.minecraft.client.gui.screen.VideoSettingsScreen;
 import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.item.Items;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.network.play.server.SCustomPayloadPlayPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -90,14 +91,14 @@ public class CommonProxy {
     public void onClientSetup(FMLClientSetupEvent event) {
         mc = event.getMinecraftSupplier().get();
         gameSettings = mc.gameSettings;
-        originGamma = gameSettings.gammaSetting;
+        originGamma = gameSettings.gamma;
         MinecraftForge.EVENT_BUS.register(new ClientEventHandler(this));
     }
 
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LightCommand.register(event.getCommandDispatcher(), this);
-        File save = event.getServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
+        File save = event.getServer().func_71218_a(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
         File conf = new File(save, LightArea.MOD_ID + ".toml");
         config = FileConfig.of(conf);
         if (!conf.exists()) {
@@ -182,14 +183,14 @@ public class CommonProxy {
         config.save();
     }
 
-    public void updateClientGamma(EntityPlayer player) {
-        if (mc.currentScreen instanceof GuiVideoSettings) {
+    public void updateClientGamma(PlayerEntity player) {
+        if (mc.currentScreen instanceof VideoSettingsScreen) {
             return;
         }
         Area area = findAreaAt(player);
         if (area != null) {
             speed = area.speed;
-            gameSettings.gammaSetting = area.nextGamma(gameSettings.gammaSetting);
+            gameSettings.gamma = area.nextGamma(gameSettings.gamma);
             return;
         }
         fallbackDefaultGamma();
@@ -199,17 +200,17 @@ public class CommonProxy {
         if (originGamma > 1) {
             originGamma = 1.0F;
         }
-        if (gameSettings.gammaSetting < this.originGamma - speed) {
-            gameSettings.gammaSetting += speed;
-        } else if (gameSettings.gammaSetting > this.originGamma + speed) {
-            gameSettings.gammaSetting -= speed;
+        if (gameSettings.gamma < this.originGamma - speed) {
+            gameSettings.gamma += speed;
+        } else if (gameSettings.gamma > this.originGamma + speed) {
+            gameSettings.gamma -= speed;
         } else {
-            gameSettings.gammaSetting = this.originGamma;
+            gameSettings.gamma = this.originGamma;
         }
     }
 
     public void saveLight() {
-        originGamma = gameSettings.gammaSetting;
+        originGamma = gameSettings.gamma;
     }
 
     public void clientReset() {
@@ -222,15 +223,14 @@ public class CommonProxy {
         lightAreas.clear();
         pos1s.clear();
         pos2s.clear();
-        gameSettings.gammaSetting = originGamma;
+        gameSettings.gamma = originGamma;
     }
 
     private void setSelectTool(String toolName) {
         if (toolName != null) {
-            Item item = IRegistry.ITEM.get(new ResourceLocation(toolName));
-            if (item != null) {
+            Registry.ITEM.getValue(new ResourceLocation(toolName)).ifPresent(item -> {
                 tool = item;
-            }
+            });
         }
     }
 
@@ -238,11 +238,11 @@ public class CommonProxy {
         return Objects.requireNonNull(tool.getRegistryName()).toString();
     }
 
-    public void setPos1(EntityPlayer player, BlockPos pos, boolean msg) {
+    public void setPos1(PlayerEntity player, BlockPos pos, boolean msg) {
         setPos1(player, new Vec3i(pos.getX(), pos.getY(), pos.getZ()), msg);
     }
 
-    public void setPos1(EntityPlayer player, Vec3i pos, boolean msg) {
+    public void setPos1(PlayerEntity player, Vec3i pos, boolean msg) {
         pos1s.put(player.getUniqueID(), pos);
         if (msg) {
             sendChatTranslation(player, "set.pos1", pos);
@@ -250,11 +250,11 @@ public class CommonProxy {
         updateCUI(player);
     }
 
-    public void setPos2(EntityPlayer player, BlockPos pos, boolean msg) {
+    public void setPos2(PlayerEntity player, BlockPos pos, boolean msg) {
         setPos2(player, new Vec3i(pos.getX(), pos.getY(), pos.getZ()), msg);
     }
 
-    public void setPos2(EntityPlayer player, Vec3i pos, boolean msg) {
+    public void setPos2(PlayerEntity player, Vec3i pos, boolean msg) {
         pos2s.put(player.getUniqueID(), pos);
         if (msg) {
             sendChatTranslation(player, "set.pos2", pos);
@@ -262,7 +262,7 @@ public class CommonProxy {
         updateCUI(player);
     }
 
-    public void updateCUI(EntityPlayer player) {
+    public void updateCUI(PlayerEntity player) {
         Vec3i pos1 = pos1s.get(player.getUniqueID());
         Vec3i pos2 = pos2s.get(player.getUniqueID());
         if (pos1 == null) {
@@ -275,21 +275,21 @@ public class CommonProxy {
         }
         int size = (pos2.x - pos1.x + 1) * (pos2.y - pos1.y + 1) * (pos2.z - pos1.z + 1);
         // CUI Packet
-        if (player instanceof EntityPlayerMP) {
-            NetHandlerPlayServer connection = ((EntityPlayerMP) player).connection;
-            connection.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
-            connection.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
-            connection.sendPacket(new SPacketCustomPayload(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
+        if (player instanceof ServerPlayerEntity) {
+            ServerPlayNetHandler connection = ((ServerPlayerEntity) player).connection;
+            connection.sendPacket(new SCustomPayloadPlayPacket(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(CUBOID))));
+            connection.sendPacket(new SCustomPayloadPlayPacket(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos1.cui(1, size)))));
+            connection.sendPacket(new SCustomPayloadPlayPacket(WECUI_CHANNEL, new PacketBuffer(Unpooled.copiedBuffer(pos2.cui(2, size)))));
         }
     }
 
-    public void sendAllAreasTo(EntityPlayerMP player) {
+    public void sendAllAreasTo(ServerPlayerEntity player) {
         if (isDedicated(player)) {
             lightAreas.forEach((dim, areas) -> areas.forEach((id, area) -> sendUpdateTo(player, dim, id, area)));
         }
     }
 
-    public void sendUpdateTo(EntityPlayerMP player, int dim, int id, Area area) {
+    public void sendUpdateTo(ServerPlayerEntity player, int dim, int id, Area area) {
         channel.send(PacketDistributor.PLAYER.with(() -> player), new AreaPacket.Update(dim, id, area));
     }
 
@@ -309,7 +309,7 @@ public class CommonProxy {
         channel.send(PacketDistributor.ALL.noArg(), new AreaPacket.Speed(dim, id, speed));
     }
 
-    public void createArea(EntityPlayerMP player, float light, float speed) {
+    public void createArea(ServerPlayerEntity player, float light, float speed) {
         Vec3i pos1 = pos1s.get(player.getUniqueID());
         Vec3i pos2 = pos2s.get(player.getUniqueID());
         if (pos1 != null && pos2 != null) {
@@ -339,7 +339,7 @@ public class CommonProxy {
         }
     }
 
-    public void deleteArea(EntityPlayerMP player) {
+    public void deleteArea(ServerPlayerEntity player) {
         Area area = findAreaAt(player);
         if (area != null) {
             lightAreas.get(player.dimension.getId()).remove(area.id);
@@ -350,7 +350,7 @@ public class CommonProxy {
         }
     }
 
-    public Area findAreaAt(EntityPlayer player) {
+    public Area findAreaAt(PlayerEntity player) {
         for (Map.Entry<Integer, Area> entry : lightAreas.getOrDefault(player.dimension.getId(), new HashMap<>()).entrySet()) {
             Area area = entry.getValue();
             if (area.contains(new Vec3d(player))) {
@@ -370,26 +370,26 @@ public class CommonProxy {
         return false;
     }
 
-    public void clearSelect(EntityPlayer player) {
+    public void clearSelect(PlayerEntity player) {
         pos1s.remove(player.getUniqueID());
         pos2s.remove(player.getUniqueID());
     }
 
     public void sendChatTranslation(ICommandSource sender, String key, Object... args) {
-        sender.sendMessage(new TextComponentTranslation(key, args));
+        sender.sendMessage(new TranslationTextComponent(key, args));
     }
 
-    public void sendChatTranslation2(EntityPlayer player, String key, String objKey) {
-        player.sendMessage(new TextComponentTranslation(key, new TextComponentTranslation(objKey)));
+    public void sendChatTranslation2(PlayerEntity player, String key, String objKey) {
+        player.sendMessage(new TranslationTextComponent(key, new TranslationTextComponent(objKey)));
     }
 
-    public void sendAreaInfo(EntityPlayer player, int dim, int id, Area area) {
+    public void sendAreaInfo(PlayerEntity player, int dim, int id, Area area) {
         Style style = new Style().setColor(TextFormatting.GREEN).setBold(true).setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/light tp " + id));
-        ITextComponent click = new TextComponentTranslation("text.click").setStyle(style);
-        player.sendMessage(new TextComponentTranslation("info.list", id, dim, area.pos1(), area.pos2(), area.gamma, click));
+        ITextComponent click = new TranslationTextComponent("text.click").setStyle(style);
+        player.sendMessage(new TranslationTextComponent("info.list", id, dim, area.pos1(), area.pos2(), area.gamma, click));
     }
 
-    public void commandTool(EntityPlayer player) {
+    public void commandTool(PlayerEntity player) {
         ItemStack stack = player.getHeldItemMainhand();
         if (stack.getItem() != Items.AIR) {
             tool = stack.getItem();
@@ -400,7 +400,7 @@ public class CommonProxy {
         }
     }
 
-    public void showList(EntityPlayer player, int dim, boolean all) {
+    public void showList(PlayerEntity player, int dim, boolean all) {
         if (all) {
             lightAreas.forEach((dimId, dimAreas) -> dimAreas.forEach((id, area) -> sendAreaInfo(player, dimId, id, area)));
         } else {
@@ -408,7 +408,7 @@ public class CommonProxy {
         }
     }
 
-    public void tpAreaById(EntityPlayerMP player, int id) {
+    public void tpAreaById(ServerPlayerEntity player, int id) {
         if (player == null) {
             return;
         }
@@ -420,10 +420,11 @@ public class CommonProxy {
                 if (player.dimension.getId() != dim) {
                     DimensionType type = DimensionType.getById(dim);
                     if (type != null) {
-                        player.changeDimension(type, (world, entity, yaw) -> {
-                            entity.moveToBlockPosAndAngles(area.center(), yaw, entity.rotationPitch);
+                        Entity entity = player.changeDimension(type);
+                        if (entity != null) {
+                            area.center(player);
                             sendChatTranslation(player, "areaTpSuccess");
-                        });
+                        }
                     }
                 } else {
                     area.center(player);
@@ -439,14 +440,14 @@ public class CommonProxy {
         return stack != null && stack.getItem().equals(tool);
     }
 
-    public static boolean isDedicated(EntityPlayerMP player) {
+    public static boolean isDedicated(ServerPlayerEntity player) {
         MinecraftServer server = getServer(player);
         return server != null && server.isDedicatedServer();
     }
 
-    public static MinecraftServer getServer(EntityPlayerMP player) {
-        if (player != null && player.world instanceof WorldServer) {
-            return ((WorldServer) player.world).getServer();
+    public static MinecraftServer getServer(ServerPlayerEntity player) {
+        if (player != null && player.world instanceof ServerWorld) {
+            return ((ServerWorld) player.world).getServer();
         }
         return null;
     }
