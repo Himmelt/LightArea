@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketCustomPayload;
+import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -25,6 +26,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -417,16 +419,8 @@ public class CommonProxy {
             HashMap<Integer, Area> areas = entry.getValue();
             Area area = areas.get(id);
             if (area != null) {
-                if (player.dimension.getId() != dim) {
-                    DimensionType type = DimensionType.getById(dim);
-                    if (type != null) {
-                        player.changeDimension(type, (world, entity, yaw) -> {
-                            entity.moveToBlockPosAndAngles(area.center(), yaw, entity.rotationPitch);
-                            sendChatTranslation(player, "areaTpSuccess");
-                        });
-                    }
-                } else {
-                    area.center(player);
+                DimensionType type = DimensionType.getById(dim);
+                if (type != null && changeDimension(player, type, area.center())) {
                     sendChatTranslation(player, "areaTpSuccess");
                 }
                 return;
@@ -449,5 +443,18 @@ public class CommonProxy {
             return ((WorldServer) player.world).getServer();
         }
         return null;
+    }
+
+    public static boolean changeDimension(EntityPlayerMP player, DimensionType to, BlockPos target) {
+        if (player.dimension == to) {
+            player.setPositionAndUpdate(target.getX(), target.getY(), target.getZ());
+            return true;
+        }
+        if (!ForgeHooks.onTravelToDimension(player, to)) {
+            return false;
+        }
+        player.server.getPlayerList().changePlayerDimension(player, to, (world, entity, yaw) -> player.moveToBlockPosAndAngles(target, player.rotationYaw, player.rotationPitch));
+        player.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
+        return true;
     }
 }
