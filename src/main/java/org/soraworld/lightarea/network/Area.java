@@ -3,6 +3,7 @@ package org.soraworld.lightarea.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
 import org.soraworld.lightarea.util.Vec3d;
 import org.soraworld.lightarea.util.Vec3i;
 
@@ -68,6 +69,10 @@ public class Area {
 
     public void center(EntityPlayer player) {
         player.setPositionAndUpdate((x1 + x2) / 2.0, (y1 + y2) / 2.0, (z1 + z2) / 2.0);
+    }
+
+    public BlockPos center() {
+        return new BlockPos((x1 + x2) / 2.0, (y1 + y2) / 2.0, (z1 + z2) / 2.0);
     }
 
     public float nextGamma(float gamma) {

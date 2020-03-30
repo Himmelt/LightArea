@@ -77,7 +77,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     public void processUpdate(AreaPacket.Update packet) {
-        lightAreas.computeIfAbsent(packet.dim, HashMap::new).put(packet.id, packet.data);
+        lightAreas.computeIfAbsent(packet.dim, dim -> new HashMap<>()).put(packet.id, packet.data);
     }
 
     public void processDelete(AreaPacket.Delete packet) {

@@ -533,12 +533,18 @@ public class CommonProxy {
                 if (player.field_71093_bK != dim) {
                     if (v_1_7 || v_1_8) {
                         player.func_71027_c(dim);
+                        area.center(player);
+                        sendChatTranslation(player, "areaTpSuccess");
                     } else if (v_1_9 || v_1_10 || v_1_11 || v_1_12) {
-                        player.func_184204_a(dim);
+                        player.changeDimension(dim, (world, entity, yaw) -> {
+                            entity.moveToBlockPosAndAngles(area.center(), yaw, entity.rotationPitch);
+                            sendChatTranslation(player, "areaTpSuccess");
+                        });
                     }
+                } else {
+                    area.center(player);
+                    sendChatTranslation(player, "areaTpSuccess");
                 }
-                area.center(player);
-                sendChatTranslation(player, "areaTpSuccess");
                 return;
             }
         }
