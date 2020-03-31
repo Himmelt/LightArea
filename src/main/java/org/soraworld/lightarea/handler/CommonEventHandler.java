@@ -23,7 +23,7 @@ public class CommonEventHandler {
     @SubscribeEvent(receiveCanceled = true)
     public void onLeftClick(PlayerInteractEvent event) {
         if (event instanceof PlayerInteractEvent.LeftClickBlock && event.getHand() == Hand.MAIN_HAND) {
-            PlayerEntity player = event.getEntityPlayer();
+            PlayerEntity player = event.getPlayer();
             ItemStack stack = player.getHeldItemMainhand();
             if (player instanceof ServerPlayerEntity && hasPerm(player) && proxy.isSelectTool(stack)) {
                 proxy.setPos1(player, event.getPos(), true);
@@ -35,7 +35,7 @@ public class CommonEventHandler {
     @SubscribeEvent(receiveCanceled = true)
     public void onRightClick(PlayerInteractEvent event) {
         if (event instanceof PlayerInteractEvent.RightClickBlock && event.getHand() == Hand.MAIN_HAND) {
-            PlayerEntity player = event.getEntityPlayer();
+            PlayerEntity player = event.getPlayer();
             ItemStack stack = player.getHeldItemMainhand();
             if (player instanceof ServerPlayerEntity && hasPerm(player) && proxy.isSelectTool(stack)) {
                 proxy.setPos2(player, event.getPos(), true);

@@ -18,9 +18,9 @@ public class Vec3i {
     }
 
     public Vec3i(Entity entity) {
-        this.x = floor(entity.posX);
-        this.y = floor(entity.posY);
-        this.z = floor(entity.posZ);
+        this.x = floor(entity.getPosX());
+        this.y = floor(entity.getPosY());
+        this.z = floor(entity.getPosZ());
     }
 
     public static int floor(double value) {

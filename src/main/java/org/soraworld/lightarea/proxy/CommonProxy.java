@@ -103,7 +103,7 @@ public class CommonProxy {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LightCommand.register(event.getCommandDispatcher(), this);
-        File save = event.getServer().func_71218_a(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
+        File save = event.getServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
         File conf = new File(save, LightArea.MOD_ID + ".toml");
         config = FileConfig.of(conf);
         if (!conf.exists()) {
@@ -462,12 +462,12 @@ public class CommonProxy {
         }
         DimensionType from = player.dimension;
         player.detach();
-        ServerWorld fromWorld = player.server.func_71218_a(from);
+        ServerWorld fromWorld = player.server.getWorld(from);
         player.dimension = to;
-        ServerWorld toWorld = player.server.func_71218_a(to);
-        WorldInfo oldInfo = player.world.getWorldInfo();
+        ServerWorld toWorld = player.server.getWorld(to);
+        WorldInfo oldInfo = toWorld.getWorldInfo();
         NetworkHooks.sendDimensionDataPacket(player.connection.netManager, player);
-        player.connection.sendPacket(new SRespawnPacket(to, oldInfo.getGenerator(), player.interactionManager.getGameType()));
+        player.connection.sendPacket(new SRespawnPacket(to, WorldInfo.byHashing(oldInfo.getSeed()), oldInfo.getGenerator(), player.interactionManager.getGameType()));
         player.connection.sendPacket(new SServerDifficultyPacket(oldInfo.getDifficulty(), oldInfo.isDifficultyLocked()));
         PlayerList playerlist = player.server.getPlayerList();
         playerlist.updatePermissionLevel(player);
@@ -482,11 +482,11 @@ public class CommonProxy {
         fromWorld.getProfiler().endSection();
 
         player.setWorld(toWorld);
-        toWorld.func_217447_b(player);
-        player.connection.setPlayerLocation(player.posX, player.posY, player.posZ, yaw, pitch);
-        player.interactionManager.func_73080_a(toWorld);
+        toWorld.addDuringPortalTeleport(player);
+        player.connection.setPlayerLocation(player.getPosX(), player.getPosY(), player.getPosZ(), yaw, pitch);
+        player.interactionManager.setWorld(toWorld);
         player.connection.sendPacket(new SPlayerAbilitiesPacket(player.abilities));
-        playerlist.func_72354_b(player, toWorld);
+        playerlist.sendWorldInfo(player, toWorld);
         playerlist.sendInventory(player);
 
         for (EffectInstance instance : player.getActivePotionEffects()) {

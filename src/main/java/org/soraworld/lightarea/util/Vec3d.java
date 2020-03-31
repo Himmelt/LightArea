@@ -16,8 +16,8 @@ public class Vec3d {
     }
 
     public Vec3d(Entity entity) {
-        this.x = entity.posX;
+        this.x = entity.getPosX();
         this.y = entity.getBoundingBox().minY;
-        this.z = entity.posZ;
+        this.z = entity.getPosZ();
     }
 }
