@@ -17,18 +17,17 @@ ext {
 
 version = '1.2.0'
 group = 'org.soraworld.lightarea'
-archivesBaseName = 'LightArea-1.14.3'
+archivesBaseName = 'LightArea-1.14.2'
 
 sourceCompatibility = targetCompatibility = 1.8
 
 repositories {
     maven { url 'https://files.minecraftforge.net/maven' }
     maven { url 'https://maven.aliyun.com/repository/public/' }
-    maven { url 'https://lss233.littleservice.cn/repositories/minecraft' }
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: '20200119-1.14.3'
+    mappings channel: 'snapshot', version: '20190624-1.14.2'
     runs {
         client {
             workingDirectory project.file('run/client')
@@ -54,7 +53,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.3-27.0.60'
+    minecraft 'net.minecraftforge:forge:1.14.2-26.0.63'
 }
 
 processResources {
