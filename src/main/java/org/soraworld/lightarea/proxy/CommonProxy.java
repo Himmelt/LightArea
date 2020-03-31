@@ -25,8 +25,8 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
@@ -38,7 +38,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.hooks.BasicEventHooks;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -103,7 +102,7 @@ public class CommonProxy {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LightCommand.register(event.getCommandDispatcher(), this);
-        File save = event.getServer().func_71218_a(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
+        File save = event.getServer().getWorld(DimensionType.OVERWORLD).getSaveHandler().getWorldDirectory();
         File conf = new File(save, LightArea.MOD_ID + ".toml");
         config = FileConfig.of(conf);
         if (!conf.exists()) {
@@ -462,11 +461,10 @@ public class CommonProxy {
         }
         DimensionType from = player.dimension;
         player.detach();
-        ServerWorld fromWorld = player.server.func_71218_a(from);
+        ServerWorld fromWorld = player.server.getWorld(from);
         player.dimension = to;
-        ServerWorld toWorld = player.server.func_71218_a(to);
+        ServerWorld toWorld = player.server.getWorld(to);
         WorldInfo oldInfo = player.world.getWorldInfo();
-        NetworkHooks.sendDimensionDataPacket(player.connection.netManager, player);
         player.connection.sendPacket(new SRespawnPacket(to, oldInfo.getGenerator(), player.interactionManager.getGameType()));
         player.connection.sendPacket(new SServerDifficultyPacket(oldInfo.getDifficulty(), oldInfo.isDifficultyLocked()));
         PlayerList playerlist = player.server.getPlayerList();
@@ -484,9 +482,9 @@ public class CommonProxy {
         player.setWorld(toWorld);
         toWorld.func_217447_b(player);
         player.connection.setPlayerLocation(player.posX, player.posY, player.posZ, yaw, pitch);
-        player.interactionManager.func_73080_a(toWorld);
+        player.interactionManager.setWorld(toWorld);
         player.connection.sendPacket(new SPlayerAbilitiesPacket(player.abilities));
-        playerlist.func_72354_b(player, toWorld);
+        playerlist.sendWorldInfo(player, toWorld);
         playerlist.sendInventory(player);
 
         for (EffectInstance instance : player.getActivePotionEffects()) {

@@ -1,11 +1,14 @@
 package org.soraworld.lightarea.handler;
 
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.screen.MultiplayerScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.VideoSettingsScreen;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.soraworld.lightarea.proxy.CommonProxy;
 
 /**
@@ -34,7 +37,10 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public void onLogout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
-        proxy.clientReset();
+    public void onLogout(GuiOpenEvent event) {
+        Screen screen = event.getGui();
+        if (screen instanceof MainMenuScreen || screen instanceof MultiplayerScreen) {
+            proxy.clientReset();
+        }
     }
 }
